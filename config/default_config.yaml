@@ -1,0 +1,33 @@
+# NeuroForensics Configuration
+system:
+  name: "NeuroForensics"
+  version: "0.1.0"
+  random_seed: 42
+
+neuromorphic:
+  num_cores: 4
+  neurons_per_core: 32
+  time_steps: 100
+  dt_ms: 1.0
+  decay_factor: 0.9
+  threshold_mv: 1.0
+  reset_mv: 0.0
+  resting_mv: 0.0
+
+acquisition:
+  snapshot_interval_steps: 5
+  compression_enabled: true
+  hash_algorithm: "sha256"
+  enable_merkle_tree: true
+  dump_extension: ".nfd"
+
+reconstruction:
+  divergence_threshold: 0.25
+  anomaly_spike_rate_multiplier: 2.5
+  temporal_window_steps: 10
+
+dfir_cti:
+  containment_strategy: "dynamic_isolation"
+  mitre_matrix_version: "v14"
+  generate_stix_bundle: true
+  organization_name: "NeuroForensics-Lab"

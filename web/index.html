@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroForensics - Evidence Sufficiency & Incident Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-area">
+        <div class="logo-icon">NF</div>
+        <div>
+          <h1>NeuroForensics</h1>
+          <div class="subtitle">Evidence Sufficiency & Attack Reconstruction for Neuromorphic SNNs</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <span class="badge simulated">Simulated SNN (LIF Multi-Core)</span>
+        <span class="badge" id="statusBadge">Evidence Verified (SHA-256 Merkle Root)</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" id="tabSufficiencyBtn" onclick="switchTab('sufficiency')">📊 Evidence Sufficiency & Ablation</button>
+      <button class="tab-btn" id="tabReconstructionBtn" onclick="switchTab('reconstruction')">🧠 Attack Reconstruction & Topology</button>
+      <button class="tab-btn" id="tabDfirBtn" onclick="switchTab('dfir')">🛡️ DFIR Playbook & CTI</button>
+    </div>
+
+    <!-- Top Stats Row -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Investigated Attack</div>
+        <div class="stat-value" id="statScenario" style="color: var(--accent-cyan); font-size: 16px;">Loading...</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Reconstruction Score</div>
+        <div class="stat-value" id="statReconScore" style="color: var(--accent-emerald);">0.0%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Min Sufficient Cardinality</div>
+        <div class="stat-value" id="statMinCard" style="color: var(--accent-amber);">-</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Root Cause Core</div>
+        <div class="stat-value" id="statRootCore" style="color: var(--accent-rose);">Core -</div>
+      </div>
+    </div>
+
+    <!-- TAB 1: Evidence Sufficiency & Ablation Study -->
+    <div class="tab-pane" id="tabSufficiency">
+      <!-- Evidence Sufficiency Curve -->
+      <div class="card col-7">
+        <div class="card-title">
+          <span>📈 Measured Evidence-Sufficiency Curve</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Reconstruction Score vs Evidence Volume (Bytes)</span>
+        </div>
+        <canvas id="curveCanvas"></canvas>
+      </div>
+
+      <!-- Minimum Sufficient Sets -->
+      <div class="card col-5">
+        <div class="card-title">
+          <span>🎯 Minimum Sufficient Evidence Set(s)</span>
+          <span style="font-size: 11px; color: var(--accent-emerald);">Threshold &ge; 0.80</span>
+        </div>
+        <div id="minSetContainer" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+          <div>Computing minimal sufficient subsets...</div>
+        </div>
+      </div>
+
+      <!-- Attack x Artifact Matrix -->
+      <div class="card col-12">
+        <div class="card-title">
+          <span>🔬 Empirical Attack &times; Artifact Matrix</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Measured from Exhaustive Combinatorial Ablation</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="research-table" id="matrixTable">
+            <thead>
+              <tr>
+                <th>Attack Scenario</th>
+                <th>Spike Events</th>
+                <th>Spike Timing</th>
+                <th>Neuron State</th>
+                <th>Synaptic State</th>
+                <th>Topology Routing</th>
+                <th>Configuration</th>
+                <th>Input/Output</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody">
+              <tr><td colspan="8">Loading empirical matrix results...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Attack Reconstruction & Multi-Core Topology -->
+    <div class="tab-pane hidden" id="tabReconstruction">
+      <!-- Core Topology Visualizer -->
+      <div class="card col-7">
+        <div class="card-title">
+          <span>🧠 SNN Multi-Core Architecture & Compromise Path</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Inter-Core Bus Topology</span>
+        </div>
+        <canvas id="topologyCanvas"></canvas>
+      </div>
+
+      <!-- Attack Timeline -->
+      <div class="card col-5">
+        <div class="card-title">
+          <span>⏱️ Chronological Attack Reconstruction Timeline</span>
+        </div>
+        <div class="timeline-list" id="timelineList">
+          <div class="timeline-item">
+            <span class="timeline-step">Step 00</span>
+            <span class="timeline-desc">Awaiting timeline data...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: DFIR & CTI -->
+    <div class="tab-pane hidden" id="tabDfir">
+      <!-- Incident Response Playbook -->
+      <div class="card col-6">
+        <div class="card-title">
+          <span>🛡️ Deterministic DFIR Containment Plan</span>
+        </div>
+        <div id="irPlanContainer" style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+          <div>Loading incident response plan...</div>
+        </div>
+      </div>
+
+      <!-- CTI & STIX Mapping -->
+      <div class="card col-6">
+        <div class="card-title">
+          <span>🌐 MITRE ATT&CK & STIX 2.1 Threat Intel</span>
+        </div>
+        <div id="indicatorList" style="margin-bottom: 12px; font-size: 13px;"></div>
+        <pre id="stixJsonBox"><code>{"status": "loading stix bundle..."}</code></pre>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

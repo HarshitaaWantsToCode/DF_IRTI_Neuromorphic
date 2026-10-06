@@ -1,0 +1,32 @@
+# Attack Scenarios for Neuromorphic System Evaluation
+
+synaptic_poisoning:
+  name: "Synaptic Weight Poisoning / Trojan"
+  description: "Targeted adversarial manipulation of synaptic connection weights across intermediate cores."
+  target_core: 2
+  target_synapse_ratio: 0.35
+  weight_shift: 2.8
+  start_step: 30
+  duration_steps: 40
+  mitre_technique_id: "T1565.001"
+  mitre_technique_name: "Stored Data Manipulation"
+
+spike_storm:
+  name: "Denial-of-Service Spike Flooding Storm"
+  description: "High-frequency burst of anomalous spikes injected into inter-core routing buses to trigger resource exhaustion."
+  target_core: 1
+  injection_rate: 0.95
+  start_step: 20
+  duration_steps: 30
+  mitre_technique_id: "T1499.004"
+  mitre_technique_name: "Application or System Exploitation: DoS"
+
+timing_jitter:
+  name: "Temporal Desynchronization / Jitter Attack"
+  description: "Subtle microsecond-level phase shifts in synaptic spike delivery timing to disrupt temporal spike-timing-dependent plasticity (STDP)."
+  target_core: 1
+  jitter_magnitude_ms: 4.5
+  start_step: 25
+  duration_steps: 35
+  mitre_technique_id: "T1071.004"
+  mitre_technique_name: "Application Layer Protocol: Timing Deviation"

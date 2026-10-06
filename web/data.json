@@ -1,0 +1,2977 @@
+{
+  "scenario": {
+    "name": "Synaptic Weight Poisoning / Trojan",
+    "description": "Targeted adversarial manipulation of synaptic connection weights across intermediate cores.",
+    "target_core": 2,
+    "target_synapse_ratio": 0.35,
+    "weight_shift": 2.8,
+    "start_step": 30,
+    "duration_steps": 40,
+    "mitre_technique_id": "T1565.001",
+    "mitre_technique_name": "Stored Data Manipulation"
+  },
+  "ground_truth": {
+    "attack_id": "5cd9c0b3",
+    "attack_type": "synaptic_poisoning",
+    "attack_category": "integrity",
+    "target_core": 2,
+    "affected_cores": [
+      2,
+      3
+    ],
+    "start_step": 30,
+    "end_step": 70,
+    "duration_steps": 40,
+    "target_neurons": [],
+    "target_synapses": [],
+    "modified_parameters": {
+      "name": "Synaptic Weight Poisoning / Trojan",
+      "description": "Targeted adversarial manipulation of synaptic connection weights across intermediate cores.",
+      "target_core": 2,
+      "target_synapse_ratio": 0.35,
+      "weight_shift": 2.8,
+      "start_step": 30,
+      "duration_steps": 40,
+      "mitre_technique_id": "T1565.001",
+      "mitre_technique_name": "Stored Data Manipulation"
+    },
+    "true_propagation_path": [
+      2,
+      3
+    ],
+    "true_impact": {
+      "target_core": 2,
+      "scenario_name": "Synaptic Weight Poisoning / Trojan"
+    }
+  },
+  "reconstruction": {
+    "scenario_name": "Synaptic Poisoning / Weight Trojan",
+    "detected_attack_type": "synaptic_poisoning",
+    "root_cause_core": 2,
+    "initial_compromise_step": 30,
+    "progression_steps": [
+      {
+        "step": 30,
+        "timestamp_ms": 30.0,
+        "event_type": "SYNAPSE_ANOMALY",
+        "affected_core": 2,
+        "affected_neurons": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "severity": "CRITICAL",
+        "description": "Synaptic weight deviation detected on Core 2 (max delta: 2.800)",
+        "evidence_ref": "snapshot_30_core_2",
+        "anomaly_score": 0.9333333333333332
+      }
+    ],
+    "compromised_cores": [
+      2
+    ],
+    "total_anomalous_spikes": 12,
+    "causal_edges": [],
+    "confidence": 0.15
+  },
+  "timeline": [
+    {
+      "step": 30,
+      "timestamp_ms": 30.0,
+      "event_type": "SYNAPSE_ANOMALY",
+      "affected_core": 2,
+      "affected_neurons": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "severity": "CRITICAL",
+      "description": "Synaptic weight deviation detected on Core 2 (max delta: 2.800)",
+      "evidence_ref": "snapshot_30_core_2",
+      "anomaly_score": 0.9333333333333332
+    }
+  ],
+  "ir_plan": {
+    "incident_id": "INC-76FC2299",
+    "scenario_detected": "Synaptic Poisoning / Weight Trojan",
+    "severity": "CRITICAL",
+    "containment_actions": [
+      "Trigger hardware interrupt: Isolate Core 2 from inter-core asynchronous routing bus.",
+      "Halt spike transmission on downstream routing channels: [].",
+      "Initiate non-volatile SRAM backup and cryptographic seal of corrupted synaptic registers."
+    ],
+    "isolated_cores": [
+      2
+    ],
+    "recalibration_targets": {
+      "2": "Full baseline firmware flash and synaptic weight matrix reset."
+    },
+    "preservation_status": "PRESERVED_IN_NFD"
+  },
+  "indicators": [
+    {
+      "indicator_id": "indicator--3c39e0e7-184b-4299-9b82-fb6c78773767",
+      "ttp_code": "T1565.001",
+      "technique_name": "Stored Data Manipulation: Synaptic Weight Tampering",
+      "tactic": "Impact",
+      "confidence_score": 0.92,
+      "description": "Adversary altered non-volatile memory or SRAM registers storing synaptic connection weights to induce targeted misclassification.",
+      "stix_pattern": "[neuromorphic-core:synaptic_weight_delta > 0.25]",
+      "observable_artifacts": {
+        "affected_core": 2,
+        "severity": "CRITICAL",
+        "step_recorded": 30,
+        "anomaly_score": 0.9333333333333332
+      }
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "Core_0",
+        "core_id": 0,
+        "status": "HEALTHY"
+      },
+      {
+        "id": "Core_1",
+        "core_id": 1,
+        "status": "HEALTHY"
+      },
+      {
+        "id": "Core_2",
+        "core_id": 2,
+        "status": "ROOT_COMPROMISE"
+      },
+      {
+        "id": "Core_3",
+        "core_id": 3,
+        "status": "HEALTHY"
+      }
+    ],
+    "links": [],
+    "scenario": "Synaptic Poisoning / Weight Trojan"
+  },
+  "metrics": {
+    "evaluation_timestamp": 1791227088.1609516,
+    "scenario": "Synaptic Poisoning / Weight Trojan",
+    "deterministic_reconstruction_score": {
+      "attack_type_score": 1.0,
+      "location_score": 1.0,
+      "temporal_score": 1.0,
+      "mechanism_score": 0.4,
+      "impact_score": 0.5,
+      "overall_score": 0.835,
+      "weights_used": {
+        "attack_type": 0.25,
+        "location": 0.25,
+        "temporal": 0.2,
+        "mechanism": 0.15,
+        "impact": 0.15
+      },
+      "passed_threshold": true,
+      "details": {
+        "ground_truth_attack": "synaptic_poisoning",
+        "detected_attack": "synaptic_poisoning",
+        "ground_truth_core": 2,
+        "reconstructed_core": 2,
+        "ground_truth_start": 30,
+        "reconstructed_start": 30,
+        "ground_truth_cores": [
+          2,
+          3
+        ],
+        "reconstructed_cores": [
+          2
+        ],
+        "threshold": 0.8
+      }
+    },
+    "performance_metrics": {
+      "overall_reconstruction_score": 0.835,
+      "root_cause_accuracy_pct": 100.0,
+      "reconstructed_root_core": 2,
+      "ground_truth_core": 2,
+      "detection_latency_steps": 0,
+      "anomalies_discovered": 1,
+      "causal_edges_reconstructed": 0,
+      "passed_sufficiency_threshold": true
+    },
+    "acquisition_metrics": {
+      "total_snapshots_acquired": 100,
+      "total_spike_events_logged": 49,
+      "included_artifacts": [
+        "SPIKE_EVENTS",
+        "SPIKE_TIMING",
+        "NEURON_STATE",
+        "SYNAPTIC_STATE",
+        "TOPOLOGY_ROUTING",
+        "CONFIGURATION",
+        "INPUT_OUTPUT"
+      ],
+      "merkle_verification_passed": true
+    },
+    "comparative_advantage_over_baselines": {
+      "neuroforensics": {
+        "synaptic_trojan_detection": true,
+        "causal_chain_reconstruction": true,
+        "cryptographic_integrity_chain": true
+      },
+      "baseline_spike_rate_thresholding": {
+        "synaptic_trojan_detection": false,
+        "causal_chain_reconstruction": false
+      },
+      "baseline_coarse_sampling": {
+        "temporal_fidelity_loss_pct": 95.0
+      }
+    }
+  },
+  "sufficiency": {
+    "threshold": 0.8,
+    "minimum_cardinality": 1,
+    "minimum_sufficient_sets": [
+      [
+        "SYNAPTIC_STATE"
+      ]
+    ],
+    "all_subsets_evaluated": 127,
+    "ablation_results": [
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS"
+        ],
+        "evidence_count": 1,
+        "evidence_volume_bytes": 88363,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 16.68,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING"
+        ],
+        "evidence_count": 1,
+        "evidence_volume_bytes": 70593,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.35,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE"
+        ],
+        "evidence_count": 1,
+        "evidence_volume_bytes": 236514,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 9.66,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 1,
+        "evidence_volume_bytes": 3106345,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 140.56,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 1,
+        "evidence_volume_bytes": 70633,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.61,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "CONFIGURATION"
+        ],
+        "evidence_count": 1,
+        "evidence_volume_bytes": 70632,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.72,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 1,
+        "evidence_volume_bytes": 71718,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.84,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 88379,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 13.83,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 254300,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 25.98,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 3124131,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 184.13,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 88419,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 17.21,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 88418,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 16.18,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 89504,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 14.67,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 236530,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 12.19,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 3106361,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 146.3,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 70649,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.63,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 70648,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.19,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 71734,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.42,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 3272282,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 151.43,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 236570,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 13.5,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 236569,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 9.62,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 237655,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 11.68,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 3106401,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 138.37,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 3106400,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 150.73,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 3107486,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 158.84,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 70688,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.88,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 71774,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 6.05,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 2,
+        "evidence_volume_bytes": 71773,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.58,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 254316,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 42.55,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3124147,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 166.8,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 88435,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 17.72,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 88434,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 12.61,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 89520,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 16.06,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3290068,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 170.22,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 254356,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 23.86,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 254355,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 25.68,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 255441,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 22.42,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3124187,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 169.8,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3124186,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 155.21,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3125272,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 165.81,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 88474,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 14.55,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 89560,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 15.83,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 89559,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 13.4,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3272298,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 160.49,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 236586,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 35.83,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 236585,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 10.69,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 237671,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 11.77,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3106417,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 143.42,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3106416,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 139.39,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3107502,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 141.49,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 70704,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 3.15,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 71790,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 3.19,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 71789,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.76,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3272338,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 153.6,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3272337,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 157.05,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3273423,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 152.75,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 236625,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 13.98,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 237711,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 12.33,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 237710,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 9.95,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3106456,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 184.16,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3107542,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 149.16,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 3107541,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 156.54,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 3,
+        "evidence_volume_bytes": 71829,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 4.44,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3290084,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 177.0,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 254372,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 26.49,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 254371,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 29.67,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 255457,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 22.63,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3124203,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 180.66,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3124202,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 160.2,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3125288,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 167.29,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 88490,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 14.37,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 89576,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 17.47,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 89575,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 17.79,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3290124,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 174.64,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3290123,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 183.42,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3291209,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 194.75,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 254411,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 21.98,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 255497,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 28.59,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 255496,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 28.14,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3124242,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 167.29,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3125328,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 157.36,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3125327,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 157.74,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 89615,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 17.8,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3272354,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 151.34,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3272353,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 159.4,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3273439,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 163.55,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 236641,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 10.61,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 237727,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 13.47,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 237726,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 14.16,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3106472,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 167.67,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3107558,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 151.63,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3107557,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 147.28,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 71845,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 2.77,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3272393,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 146.38,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3273479,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 149.42,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3273478,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 164.86,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 237766,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 14.59,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 4,
+        "evidence_volume_bytes": 3107597,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 163.55,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3290140,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 167.15,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3290139,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 207.01,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3291225,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 172.26,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 254427,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 27.35,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 255513,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 23.75,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 255512,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 23.92,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3124258,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 155.06,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3125344,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 161.84,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3125343,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 155.5,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 89631,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 15.18,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3290179,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 161.0,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3291265,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 178.42,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3291264,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 179.89,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 255552,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 22.66,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3125383,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 170.92,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3272409,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 184.47,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3273495,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 154.28,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3273494,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 157.22,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 237782,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 14.44,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3107613,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 151.17,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 5,
+        "evidence_volume_bytes": 3273534,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 148.69,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ],
+        "evidence_count": 6,
+        "evidence_volume_bytes": 3290195,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 164.81,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 6,
+        "evidence_volume_bytes": 3291281,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 198.93,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 6,
+        "evidence_volume_bytes": 3291280,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 162.05,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 6,
+        "evidence_volume_bytes": 255568,
+        "reconstruction_score": 0.0,
+        "attack_identification_score": 0.0,
+        "location_score": 0.0,
+        "temporal_score": 0.0,
+        "mechanism_score": 0.0,
+        "impact_score": 0.0,
+        "success": false,
+        "runtime_ms": 22.84,
+        "detected_attack": "benign",
+        "root_cause_core": -1,
+        "initial_compromise_step": -1,
+        "anomalies_count": 0
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 6,
+        "evidence_volume_bytes": 3125399,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 159.91,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 6,
+        "evidence_volume_bytes": 3291320,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 168.74,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 6,
+        "evidence_volume_bytes": 3273550,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 155.69,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      },
+      {
+        "evidence_subset": [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "NEURON_STATE",
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION",
+          "INPUT_OUTPUT"
+        ],
+        "evidence_count": 7,
+        "evidence_volume_bytes": 3291336,
+        "reconstruction_score": 0.835,
+        "attack_identification_score": 1.0,
+        "location_score": 1.0,
+        "temporal_score": 1.0,
+        "mechanism_score": 0.4,
+        "impact_score": 0.5,
+        "success": true,
+        "runtime_ms": 171.81,
+        "detected_attack": "synaptic_poisoning",
+        "root_cause_core": 2,
+        "initial_compromise_step": 30,
+        "anomalies_count": 1
+      }
+    ]
+  }
+}
