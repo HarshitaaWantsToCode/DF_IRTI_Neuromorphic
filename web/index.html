@@ -17,23 +17,29 @@
         </div>
       </div>
       <div style="display: flex; gap: 8px;">
-        <span class="badge simulated">Simulated SNN (LIF Multi-Core)</span>
+        <span class="badge simulated">Simulated SNN (6-Core LIF Architecture)</span>
         <span class="badge" id="statusBadge">Evidence Verified (SHA-256 Merkle Root)</span>
       </div>
     </header>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-      <button class="tab-btn active" id="tabSufficiencyBtn" onclick="switchTab('sufficiency')">📊 Evidence Sufficiency & Ablation</button>
-      <button class="tab-btn" id="tabReconstructionBtn" onclick="switchTab('reconstruction')">🧠 Attack Reconstruction & Topology</button>
-      <button class="tab-btn" id="tabDfirBtn" onclick="switchTab('dfir')">🛡️ DFIR Playbook & CTI</button>
+      <button class="tab-btn active" id="tabSufficiencyBtn" onclick="switchTab('sufficiency')">Evidence Sufficiency &amp; Ablation</button>
+      <button class="tab-btn" id="tabReconstructionBtn" onclick="switchTab('reconstruction')">Attack Reconstruction &amp; Topology</button>
+      <button class="tab-btn" id="tabDfirBtn" onclick="switchTab('dfir')">DFIR Playbook &amp; CTI</button>
     </div>
 
     <!-- Top Stats Row -->
     <div class="stats-grid">
       <div class="stat-box">
-        <div class="stat-label">Investigated Attack</div>
-        <div class="stat-value" id="statScenario" style="color: var(--accent-cyan); font-size: 16px;">Loading...</div>
+        <div class="stat-label">Investigated Attack Scenario</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+          <select id="scenarioSelect" class="scenario-dropdown" onchange="onScenarioChange(this.value)">
+            <option value="synaptic_poisoning">Synaptic Weight Poisoning (Trojan)</option>
+            <option value="spike_storm">Denial-of-Service Spike Flooding Storm</option>
+            <option value="timing_jitter">Temporal Desynchronization / Jitter</option>
+          </select>
+        </div>
       </div>
       <div class="stat-box">
         <div class="stat-label">Reconstruction Score</div>
@@ -49,100 +55,135 @@
       </div>
     </div>
 
-    <!-- TAB 1: Evidence Sufficiency & Ablation Study -->
-    <div class="tab-pane" id="tabSufficiency">
-      <!-- Evidence Sufficiency Curve -->
-      <div class="card col-7">
-        <div class="card-title">
-          <span>📈 Measured Evidence-Sufficiency Curve</span>
-          <span style="font-size: 11px; color: var(--text-muted);">Reconstruction Score vs Evidence Volume (Bytes)</span>
+    <!-- Main Grid Content -->
+    <div class="dashboard-grid">
+      <!-- TAB 1: Evidence Sufficiency & Ablation Study -->
+      <div class="tab-pane" id="tabSufficiency">
+        <!-- Evidence Sufficiency Curve -->
+        <div class="card col-7">
+          <div class="card-title">
+            <span>Measured Evidence-Sufficiency Curve</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Reconstruction Score vs Evidence Volume (Bytes)</span>
+          </div>
+          <canvas id="curveCanvas"></canvas>
         </div>
-        <canvas id="curveCanvas"></canvas>
-      </div>
 
-      <!-- Minimum Sufficient Sets -->
-      <div class="card col-5">
-        <div class="card-title">
-          <span>🎯 Minimum Sufficient Evidence Set(s)</span>
-          <span style="font-size: 11px; color: var(--accent-emerald);">Threshold &ge; 0.80</span>
+        <!-- Minimum Sufficient Sets -->
+        <div class="card col-5">
+          <div class="card-title">
+            <span>Minimum Sufficient Evidence Set(s)</span>
+            <span style="font-size: 11px; color: var(--accent-emerald);">Threshold &ge; 0.80</span>
+          </div>
+          <div id="minSetContainer" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+            <div>Computing minimal sufficient subsets...</div>
+          </div>
         </div>
-        <div id="minSetContainer" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
-          <div>Computing minimal sufficient subsets...</div>
-        </div>
-      </div>
 
-      <!-- Attack x Artifact Matrix -->
-      <div class="card col-12">
-        <div class="card-title">
-          <span>🔬 Empirical Attack &times; Artifact Matrix</span>
-          <span style="font-size: 11px; color: var(--text-muted);">Measured from Exhaustive Combinatorial Ablation</span>
-        </div>
-        <div style="overflow-x: auto;">
-          <table class="research-table" id="matrixTable">
-            <thead>
-              <tr>
-                <th>Attack Scenario</th>
-                <th>Spike Events</th>
-                <th>Spike Timing</th>
-                <th>Neuron State</th>
-                <th>Synaptic State</th>
-                <th>Topology Routing</th>
-                <th>Configuration</th>
-                <th>Input/Output</th>
-              </tr>
-            </thead>
-            <tbody id="matrixTableBody">
-              <tr><td colspan="8">Loading empirical matrix results...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 2: Attack Reconstruction & Multi-Core Topology -->
-    <div class="tab-pane hidden" id="tabReconstruction">
-      <!-- Core Topology Visualizer -->
-      <div class="card col-7">
-        <div class="card-title">
-          <span>🧠 SNN Multi-Core Architecture & Compromise Path</span>
-          <span style="font-size: 11px; color: var(--text-muted);">Inter-Core Bus Topology</span>
-        </div>
-        <canvas id="topologyCanvas"></canvas>
-      </div>
-
-      <!-- Attack Timeline -->
-      <div class="card col-5">
-        <div class="card-title">
-          <span>⏱️ Chronological Attack Reconstruction Timeline</span>
-        </div>
-        <div class="timeline-list" id="timelineList">
-          <div class="timeline-item">
-            <span class="timeline-step">Step 00</span>
-            <span class="timeline-desc">Awaiting timeline data...</span>
+        <!-- Attack x Artifact Matrix -->
+        <div class="card col-12">
+          <div class="card-title">
+            <span>Empirical Attack &times; Artifact Matrix</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Measured from Exhaustive Combinatorial Ablation</span>
+          </div>
+          <div class="matrix-container">
+            <table class="research-table" id="matrixTable">
+              <thead>
+                <tr>
+                  <th>Attack Scenario</th>
+                  <th>Spike Events</th>
+                  <th>Spike Timing</th>
+                  <th>Neuron State</th>
+                  <th>Synaptic State</th>
+                  <th>Topology Routing</th>
+                  <th>Configuration</th>
+                  <th>Input/Output</th>
+                </tr>
+              </thead>
+              <tbody id="matrixTableBody">
+                <tr><td colspan="8">Loading empirical matrix results...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- TAB 3: DFIR & CTI -->
-    <div class="tab-pane hidden" id="tabDfir">
-      <!-- Incident Response Playbook -->
-      <div class="card col-6">
-        <div class="card-title">
-          <span>🛡️ Deterministic DFIR Containment Plan</span>
+      <!-- TAB 2: Attack Reconstruction & Multi-Core Topology -->
+      <div class="tab-pane hidden" id="tabReconstruction">
+        <!-- Core Topology Visualizer (Expanded to 6 Cores) -->
+        <div class="card col-7">
+          <div class="card-title">
+            <span>6-Core Neuromorphic Architecture &amp; Compromise Flow</span>
+            <span style="font-size: 11px; color: var(--accent-cyan);">6-Core Ring &amp; Mesh Topology</span>
+          </div>
+          <canvas id="topologyCanvas"></canvas>
         </div>
-        <div id="irPlanContainer" style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
-          <div>Loading incident response plan...</div>
+
+        <!-- Attack Progression & Investigation Timeline (From Initial Guess to Final Answer) -->
+        <div class="card col-5">
+          <div class="card-title">
+            <span>End-to-End Forensic Investigation Timeline</span>
+            <span style="font-size: 11px; color: var(--accent-amber);">Initial Probe &rarr; Root Cause</span>
+          </div>
+          <div class="timeline-list" id="timelineList">
+            <div class="timeline-item">
+              <span class="timeline-step">Step 00</span>
+              <span class="timeline-desc">Awaiting timeline data...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fine-Grained Neural Network Graph (Neuron Synapses, Spikes & Red Plus Alert Markers) -->
+        <div class="card col-12">
+          <div class="card-title">
+            <span>Microscopic SNN Synaptic Network Graph (Neurons, Synapses &amp; Anomalous Spike Bursts)</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.35);">
+                <strong style="font-size: 13px; margin-right: 4px;">[+]</strong> Anomalous Spike Event
+              </span>
+              <span class="badge simulated">AER Inter-Neuron Synaptic Grid</span>
+            </div>
+          </div>
+          <canvas id="neuralNetCanvas" style="height: 270px; width: 100%;"></canvas>
+        </div>
+
+        <!-- Dynamic Synapse & Spike Weights Visualizer -->
+        <div class="card col-12">
+          <div class="card-title">
+            <span>Dynamic Synapse Matrix &amp; Biophysical Membrane Voltage Oscillations (V_m)</span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <span class="badge simulated" id="liveSynapseBadge">Live Dynamic SNN Stream</span>
+              <button class="tab-btn active" style="padding: 4px 10px; font-size: 11px;" onclick="toggleSynapseAnimation()">Pause/Resume Stream</button>
+            </div>
+          </div>
+          <canvas id="synapseCanvas" style="height: 230px; width: 100%;"></canvas>
         </div>
       </div>
 
-      <!-- CTI & STIX Mapping -->
-      <div class="card col-6">
-        <div class="card-title">
-          <span>🌐 MITRE ATT&CK & STIX 2.1 Threat Intel</span>
+      <!-- TAB 3: DFIR & CTI -->
+      <div class="tab-pane hidden" id="tabDfir">
+        <!-- Incident Response Playbook -->
+        <div class="card col-6">
+          <div class="card-title">
+            <span>Deterministic DFIR Containment Plan</span>
+            <span class="badge" style="background: rgba(225, 29, 72, 0.15); color: var(--accent-rose); border-color: rgba(225, 29, 72, 0.3);">Severity: CRITICAL</span>
+          </div>
+          <div id="irPlanContainer" style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+            <div>Loading incident response plan...</div>
+          </div>
         </div>
-        <div id="indicatorList" style="margin-bottom: 12px; font-size: 13px;"></div>
-        <pre id="stixJsonBox"><code>{"status": "loading stix bundle..."}</code></pre>
+
+        <!-- Human Readable CTI & STIX Threat Intel -->
+        <div class="card col-6">
+          <div class="card-title">
+            <span>MITRE ATT&amp;CK &amp; STIX 2.1 Threat Intel Intelligence</span>
+          </div>
+          <div id="ctiCardsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;"></div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <span>STIX 2.1 JSON Schema Bundle (Standardized CTI Format):</span>
+            <button class="tab-btn" style="padding: 2px 8px; font-size: 10px;" onclick="toggleStixJson()">Toggle Raw STIX JSON</button>
+          </div>
+          <pre id="stixJsonBox" style="display: none;"><code>{"status": "loading stix bundle..."}</code></pre>
+        </div>
       </div>
     </div>
 
