@@ -52,14 +52,19 @@ class ForensicCollector:
         merkle_root = ChainOfCustodyVerifier.compute_merkle_root(block_hashes)
 
         # 3. Create NFD Header
+        # Note: collector_signature is currently a deterministic mock/placeholder string
+        # formatted with the Merkle root prefix. In a production HSM environment, this is signed with an ECDSA private key.
         header = NFDHeader(
             total_steps=len(self.snapshots),
             num_cores=self.num_cores,
             neurons_per_core=self.neurons_per_core,
             root_merkle_hash=merkle_root,
-            collector_signature=f"ECDSA-SIG-{merkle_root[:16]}",
+            collector_signature=f"ECDSA-PLACEHOLDER-{merkle_root[:16]}",
             included_artifacts=list(ArtifactClass),
-            metadata=metadata,
+            metadata={
+                **metadata,
+                "signature_algorithm": "ECDSA-secp256k1 (Placeholder/Emulation)",
+            },
         )
 
         return EvidencePackage(

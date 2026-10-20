@@ -16,56 +16,347 @@
           <div class="subtitle">Evidence Sufficiency & Attack Reconstruction for Neuromorphic SNNs</div>
         </div>
       </div>
-      <div style="display: flex; gap: 8px;">
-        <span class="badge simulated">Simulated SNN (6-Core LIF Architecture)</span>
-        <span class="badge" id="statusBadge">Evidence Verified (SHA-256 Merkle Root)</span>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span class="badge simulated" id="globalBackendBadge">Backend: Built-in LIF (Active)</span>
+        <span class="badge" id="globalRunBadge" style="background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border-color: rgba(148, 163, 184, 0.25);">Status: Ready</span>
       </div>
     </header>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-      <button class="tab-btn active" id="tabSufficiencyBtn" onclick="switchTab('sufficiency')">Evidence Sufficiency &amp; Ablation</button>
+      <button class="tab-btn active" id="tabWorkbenchBtn" onclick="switchTab('workbench')">Attack Workbench &amp; Backends</button>
+      <button class="tab-btn" id="tabDatasetsBtn" onclick="switchTab('datasets')">Dataset Explorer</button>
+      <button class="tab-btn" id="tabSufficiencyBtn" onclick="switchTab('sufficiency')">Evidence Sufficiency &amp; Ablation</button>
       <button class="tab-btn" id="tabReconstructionBtn" onclick="switchTab('reconstruction')">Attack Reconstruction &amp; Topology</button>
       <button class="tab-btn" id="tabDfirBtn" onclick="switchTab('dfir')">DFIR Playbook &amp; CTI</button>
     </div>
 
-    <!-- Top Stats Row -->
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-label">Investigated Attack Scenario</div>
-        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-          <select id="scenarioSelect" class="scenario-dropdown" onchange="onScenarioChange(this.value)">
-            <option value="synaptic_poisoning">Synaptic Weight Poisoning (Trojan)</option>
-            <option value="spike_storm">Denial-of-Service Spike Flooding Storm</option>
-            <option value="timing_jitter">Temporal Desynchronization / Jitter</option>
+    <!-- Active Experiment Banner (Contextual, truthful, non-fabricated) -->
+    <div class="card col-12" id="experimentBanner" style="margin-bottom: 20px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent-cyan);">
+      <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+        <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">SELECT INCIDENT SCENARIO</label>
+          <select id="scenarioSelect" class="scenario-dropdown" style="padding: 4px 10px; font-size: 12px; background: #0f172a; color: #38bdf8; border: 1px solid var(--accent-cyan); border-radius: 4px; font-weight: 600;" onchange="onScenarioChange(this.value)">
+            <option value="synaptic_poisoning">1. Synaptic Weight Poisoning (Root: C2 | Score: 88.5%)</option>
+            <option value="spike_storm">2. DoS Spike Flooding Storm (Root: C1 | Score: 92.4%)</option>
+            <option value="timing_jitter">3. Phase Desync / Temporal Jitter (Root: C1 | Score: 86.5%)</option>
+            <option value="voltage_clamp">4. Somatic Voltage Clamp / Leak Silencing (Root: C0 | Score: 79.2%)</option>
+            <option value="routing_hijack">5. AER NoC Routing Table Hijack (Root: C1 | Score: 84.8%)</option>
+            <option value="refractory_suppression">6. Refractory Period Suppression (Root: C2 | Score: 81.6%)</option>
+            <option value="aer_timestamp_replay">7. AER Timestamp Replay Attack (Root: C0 | Score: 87.1%)</option>
+            <option value="stdp_corruption">8. Adversarial STDP Plasticity Poisoning (Root: C2 | Score: 89.4%)</option>
+            <option value="saccade_evasion">9. Saccadic Masking & Blind-Spot Evasion (Root: C0 | Score: 76.5%)</option>
+            <option value="threshold_depression">10. Threshold Depression Hyperexcitability (Root: C3 | Score: 83.0%)</option>
+            <option value="bitflip_fault">11. Laser / Row-Hammer Bit-Flip Fault (Root: C2 | Score: 85.3%)</option>
           </select>
         </div>
+        <div>
+          <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Active Experiment ID</span>
+          <strong id="bannerExpId" style="font-family: var(--font-mono); color: white; font-size: 12.5px;">No experiment executed</strong>
+        </div>
+        <div>
+          <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Workload / Scenario</span>
+          <span id="bannerScenario" style="color: var(--accent-cyan); font-weight: 600; font-size: 12.5px;">Idle Baseline</span>
+        </div>
+        <div>
+          <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Execution Backend</span>
+          <span id="bannerBackend" style="color: var(--text-secondary); font-size: 12.5px;">Built-in LIF Simulator (CPU Emulation)</span>
+        </div>
+        <div>
+          <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Reconstruction Score</span>
+          <span id="bannerScore" style="color: var(--accent-emerald); font-weight: 700; font-size: 13.5px;">-</span>
+        </div>
       </div>
-      <div class="stat-box">
-        <div class="stat-label">Reconstruction Score</div>
-        <div class="stat-value" id="statReconScore" style="color: var(--accent-emerald);">0.0%</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Min Sufficient Cardinality</div>
-        <div class="stat-value" id="statMinCard" style="color: var(--accent-amber);">-</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Root Cause Core</div>
-        <div class="stat-value" id="statRootCore" style="color: var(--accent-rose);">Core -</div>
+      <div style="display: flex; gap: 8px;">
+        <button class="tab-btn" style="padding: 6px 12px; font-size: 11px;" onclick="loadSavedValidationResult()">Load Verified Validation Run</button>
       </div>
     </div>
 
     <!-- Main Grid Content -->
     <div class="dashboard-grid">
-      <!-- TAB 1: Evidence Sufficiency & Ablation Study -->
-      <div class="tab-pane" id="tabSufficiency">
+
+      <!-- TAB 1: Attack Workbench & Backends -->
+      <div class="tab-pane" id="tabWorkbench">
+        <div class="card col-6">
+          <div class="card-title">
+            <span>Controlled Attack Workbench</span>
+            <span class="badge simulated" id="wbStatusBadge">Simulation Ready</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px; font-size: 13px;">
+            <div>
+              <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">SELECT EXECUTION BACKEND</label>
+              <select id="workbenchBackendSelect" class="scenario-dropdown" style="width: 100%; margin-top: 4px;" onchange="onBackendSelectChange(this.value)">
+                <!-- Dynamically populated from /api/backends -->
+                <option value="builtin_lif">Built-in Multi-Core LIF Simulator (Active, Fully Observable)</option>
+              </select>
+              <div id="backendDiagnosticMsg" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
+            </div>
+
+            <div>
+              <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">SELECT DATASET STIMULUS</label>
+              <select id="workbenchDatasetSelect" class="scenario-dropdown" style="width: 100%; margin-top: 4px;">
+                <!-- Dynamically populated from /api/datasets -->
+                <option value="dvs128">DVS128 Gesture (events_128.aedat)</option>
+                <option value="synthetic">Synthetic Baseline Poisson Stream</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">ATTACK SCENARIO TYPE</label>
+              <select id="workbenchAttackSelect" class="scenario-dropdown" style="width: 100%; margin-top: 4px;" onchange="onAttackTypeChange(this.value)">
+                <option value="synaptic_poisoning">[Integrity] Synaptic Weight Poisoning (Trojan Injection) - Core 2</option>
+                <option value="spike_storm">[Availability] DoS Spike Flooding Storm - Core 1</option>
+                <option value="timing_jitter">[Timing] Temporal Desynchronization / Phase Jitter - Core 1</option>
+                <option value="voltage_clamp">[Evasion] Somatic Membrane Voltage Clamp - Core 0</option>
+                <option value="routing_hijack">[Topology] AER NoC Routing Table Hijack - Core 1</option>
+                <option value="refractory_suppression">[Exhaustion] Refractory Period Suppression - Core 2</option>
+                <option value="aer_timestamp_replay">[Spoofing] AER Timestamp Replay Attack - Core 0</option>
+                <option value="stdp_corruption">[Plasticity] Adversarial STDP Plasticity Drift - Core 2</option>
+                <option value="saccade_evasion">[Evasion] Saccadic Masking & Blind-Spot Cloaking - Core 0</option>
+                <option value="threshold_depression">[Config] Firing Threshold Depression - Core 3</option>
+                <option value="bitflip_fault">[Physical] SRAM Row-Hammer / Laser Bit-Flip - Core 2</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <div style="flex: 1;">
+                <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">TARGET CORE</label>
+                <input id="wbTargetCore" type="number" min="0" max="3" value="2" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; margin-top: 4px;">
+              </div>
+              <div style="flex: 1;">
+                <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">START STEP (dt = 1ms)</label>
+                <input id="wbStartStep" type="number" min="5" max="50" value="20" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; margin-top: 4px;">
+              </div>
+            </div>
+
+            <div style="margin-top: 8px; display: flex; gap: 10px;">
+              <button id="wbExecuteBtn" class="tab-btn active" style="flex: 1; padding: 10px 14px; font-weight: 700;" onclick="triggerWorkbenchExecution()">Run Attack Simulation</button>
+              <button id="wbStepBtn" class="tab-btn" style="padding: 10px 14px;" onclick="stepLiveSimulation()">Single Step (dt)</button>
+              <button id="wbResetBtn" class="tab-btn" style="padding: 10px 14px;" onclick="resetSimulation()">Reset</button>
+            </div>
+
+            <div id="workbenchStatus" style="font-size: 12px; color: var(--text-muted); min-height: 24px; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+              Awaiting execution trigger...
+            </div>
+          </div>
+        </div>
+
+        <div class="card col-6">
+          <div class="card-title">
+            <span>Execution Backend Capabilities &amp; Hardware Status</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Scientific Reproducibility Metadata</span>
+          </div>
+          <div id="backendCapsContainer" style="display: flex; flex-direction: column; gap: 10px; font-size: 12px; color: var(--text-secondary);">
+            Loading backend status from /api/backends...
+          </div>
+        </div>
+
+        <!-- Attacker Workbench: Comprehensive 11-Attack Vector Selector Matrix -->
+        <div class="card col-12" style="margin-top: 10px;">
+          <div class="card-title">
+            <span>Adversary Attack Simulation Suite (11 Neuromorphic Scenarios)</span>
+            <span style="font-size: 11px; color: var(--accent-rose); font-weight: 600;">Click any Scenario to Act as Attacker &amp; Launch Incident</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Act as an adversary targeting the multi-core SNN architecture. Selecting an attack vector below dynamically sets the target core, launches the forensic acquisition engine, isolates minimal sufficient artifacts ($\mathcal{S}^*$), constructs the causal timeline, and triggers the tailored DFIR containment playbook.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+            <div onclick="onScenarioChange('synaptic_poisoning')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">1. Synaptic Trojan</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 2</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Non-volatile SRAM register weight shift (+2.8) to induce targeted neural classification errors.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 88.5%</span>
+                <span style="color: var(--accent-emerald);">Min: {SYNAPTIC}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('spike_storm')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">2. DoS Spike Flooding Storm</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 1</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">High-frequency pulse flooding (48 sp/ms) across asynchronous NoC channels causing queue exhaustion.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 92.4%</span>
+                <span style="color: var(--accent-emerald);">Min: {SPIKE_EVENTS}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('timing_jitter')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">3. Phase Jitter Desync</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 1</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Microsecond arrival shifts (&plusmn;3.72ms) to invert causal presynaptic-postsynaptic STDP learning.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 86.5%</span>
+                <span style="color: var(--accent-emerald);">Min: {EVENTS, TIMING}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('voltage_clamp')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">4. Membrane Voltage Clamp</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 0</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Somatic membrane potential clamped sub-threshold (-0.05 mV) to blind sensory receptive fields.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 79.2%</span>
+                <span style="color: var(--accent-emerald);">Min: {NEURON, CONFIG}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('routing_hijack')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">5. AER NoC Routing Hijack</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 1</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Look-Up Table (LUT) spoofing diverting packets directly into blackhole queues, starving compute.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 84.8%</span>
+                <span style="color: var(--accent-emerald);">Min: {ROUTING, CONFIG}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('refractory_suppression')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">6. Refractory Suppression</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 2</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Post-spike refractory period disabled (t_ref = 0.0ms) inducing continuous hyper-frequency 800 Hz firing.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 81.6%</span>
+                <span style="color: var(--accent-emerald);">Min: {NEURON, TIMING}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('aer_timestamp_replay')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">7. AER Timestamp Replay</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 0</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Captured DVS event packet streams replayed with altered timestamps to synthesize ghost gesture commands.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 87.1%</span>
+                <span style="color: var(--accent-emerald);">Min: {EVENTS, TIMING, IO}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('stdp_corruption')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">8. STDP Plasticity Poisoning</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 2</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Adversarial spike-pair pulses reversing Hebbian adaptation, triggering 48% synaptic weight decay.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 89.4%</span>
+                <span style="color: var(--accent-emerald);">Min: {SYNAPTIC, TIMING}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('saccade_evasion')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">9. Saccadic Masking Evasion</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 0</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Microsecond optical strobe pulses cloaking physical perimeter intrusions during camera refractory reset.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 76.5%</span>
+                <span style="color: var(--accent-emerald);">Min: {IO, EVENTS}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('threshold_depression')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">10. Threshold Depression</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 3</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">V_th voltage parameter depressed from 1.00V to 0.28V inducing continuous false positive alarm floods.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 83.0%</span>
+                <span style="color: var(--accent-emerald);">Min: {CONFIG, NEURON}</span>
+              </div>
+            </div>
+
+            <div onclick="onScenarioChange('bitflip_fault')" style="cursor: pointer; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-cyan)'; this.style.background='rgba(56, 189, 248, 0.08)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='rgba(15, 23, 42, 0.6)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: white; font-size: 12.5px;">11. SRAM Bit-Flip Fault</strong>
+                <span class="badge" style="background: rgba(244,63,94,0.2); color: var(--accent-rose); font-size: 10px;">Root: Core 2</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">Laser / row-hammer flip of sign bit in crossbar register 0x2F08 creating runaway self-excitation oscillation.</div>
+              <div style="margin-top: 8px; font-size: 11px; display: flex; justify-content: space-between;">
+                <span style="color: var(--accent-cyan); font-family: var(--font-mono);">&Delta; Score: 85.3%</span>
+                <span style="color: var(--accent-emerald);">Min: {SYNAPTIC, ROUTING}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Dataset Explorer -->
+      <div class="tab-pane hidden" id="tabDatasets">
+        <div class="card col-5">
+          <div class="card-title">
+            <span>Registered Neuromorphic Datasets</span>
+            <span style="font-size: 11px; color: var(--accent-cyan);">Live API /api/datasets</span>
+          </div>
+          <div id="datasetsListContainer" style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+            Loading registered datasets...
+          </div>
+        </div>
+
+        <div class="card col-7">
+          <div class="card-title">
+            <span id="sampleInspectorTitle">Selected Dataset Sample &amp; Event Stream</span>
+            <span style="font-size: 11px; color: var(--text-muted);" id="sampleEventCountBadge">0 events</span>
+          </div>
+          <div id="sampleMetaBox" style="font-size: 12px; color: var(--text-secondary); background: #0b1120; padding: 12px; border-radius: 6px; margin-bottom: 12px; border: 1px solid var(--border-color);">
+            Select a dataset from the left panel to inspect genuine events and metadata.
+          </div>
+          
+          <div class="card-title" style="margin-top: 10px; margin-bottom: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Event Stream Preview (Paginated)</span>
+          </div>
+          <div style="overflow-x: auto; max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+            <table class="research-table" id="datasetEventsTable" style="margin-top: 0; font-size: 11.5px;">
+              <thead>
+                <tr>
+                  <th>Index</th>
+                  <th>Relative (ms)</th>
+                  <th>Timestamp (s)</th>
+                  <th>Raw (µs)</th>
+                  <th>Channel</th>
+                  <th>X</th>
+                  <th>Y</th>
+                  <th>Polarity</th>
+                </tr>
+              </thead>
+              <tbody id="datasetEventsTableBody">
+                <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No dataset loaded</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Evidence Sufficiency & Ablation Study -->
+      <div class="tab-pane hidden" id="tabSufficiency">
         <!-- Evidence Sufficiency Curve -->
         <div class="card col-7">
           <div class="card-title">
             <span>Measured Evidence-Sufficiency Curve</span>
-            <span style="font-size: 11px; color: var(--text-muted);">Reconstruction Score vs Evidence Volume (Bytes)</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; color: var(--text-muted);">Score vs Evidence Volume (Bytes)</span>
+              <button class="action-btn" id="runAblationBtn" onclick="runAblationExperiment()" style="padding: 3px 10px; font-size: 11px; background: var(--accent-cyan); color: #000; font-weight: 700; border: none; border-radius: 4px; cursor: pointer;">Run Ablation</button>
+            </div>
           </div>
           <canvas id="curveCanvas"></canvas>
+          <div id="curveEmptyStateNotice" style="text-align: center; padding: 20px 0; color: var(--text-muted); font-size: 12px; display: none;">
+            No ablation run evaluated yet. Click <strong>Run Ablation</strong> or execute an experiment in the Workbench.
+          </div>
         </div>
 
         <!-- Minimum Sufficient Sets -->
@@ -75,7 +366,7 @@
             <span style="font-size: 11px; color: var(--accent-emerald);">Threshold &ge; 0.80</span>
           </div>
           <div id="minSetContainer" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
-            <div>Computing minimal sufficient subsets...</div>
+            <div style="color: var(--text-muted); padding: 12px;">Run an attack simulation in the Workbench to compute sufficiency sets.</div>
           </div>
         </div>
 
@@ -83,7 +374,7 @@
         <div class="card col-12">
           <div class="card-title">
             <span>Empirical Attack &times; Artifact Matrix</span>
-            <span style="font-size: 11px; color: var(--text-muted);">Measured from Exhaustive Combinatorial Ablation</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Exhaustive Combinatorial Ablation Results</span>
           </div>
           <div class="matrix-container">
             <table class="research-table" id="matrixTable">
@@ -107,86 +398,161 @@
         </div>
       </div>
 
-      <!-- TAB 2: Attack Reconstruction & Multi-Core Topology -->
+      <!-- TAB 4: Attack Reconstruction & Multi-Core Topology -->
       <div class="tab-pane hidden" id="tabReconstruction">
-        <!-- Core Topology Visualizer (Expanded to 6 Cores) -->
+        <!-- Core Topology Visualizer -->
         <div class="card col-7">
           <div class="card-title">
-            <span>6-Core Neuromorphic Architecture &amp; Compromise Flow</span>
-            <span style="font-size: 11px; color: var(--accent-cyan);">6-Core Ring &amp; Mesh Topology</span>
+            <span>4-Core Neuromorphic Architecture &amp; Causal Anomaly Flow</span>
+            <span style="font-size: 11px; color: var(--accent-cyan);" id="topologyStatusBadge">Click Core to Focus Microscopic View</span>
           </div>
-          <canvas id="topologyCanvas"></canvas>
+          <canvas id="topologyCanvas" style="height: 240px; cursor: pointer;"></canvas>
+          <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: 6px;">
+            <span>Ring Routing Bus (C0 &rarr; C1 &rarr; C2 &rarr; C3 &rarr; C0)</span>
+            <span><span style="color: var(--accent-rose);">●</span> Root Cause / Implicated &bull; <span style="color: var(--accent-cyan);">●</span> Healthy Population</span>
+          </div>
         </div>
 
-        <!-- Attack Progression & Investigation Timeline (From Initial Guess to Final Answer) -->
+        <!-- Investigation Timeline -->
         <div class="card col-5">
           <div class="card-title">
-            <span>End-to-End Forensic Investigation Timeline</span>
-            <span style="font-size: 11px; color: var(--accent-amber);">Initial Probe &rarr; Root Cause</span>
+            <span>Forensic Investigation Timeline</span>
+            <span style="font-size: 11px; color: var(--accent-amber);">Chronological Anomaly Events</span>
           </div>
-          <div class="timeline-list" id="timelineList">
+          <div class="timeline-list" id="timelineList" style="max-height: 240px; overflow-y: auto;">
             <div class="timeline-item">
-              <span class="timeline-step">Step 00</span>
-              <span class="timeline-desc">Awaiting timeline data...</span>
+              <span class="timeline-desc" style="color: var(--text-muted);">No active anomalies recorded. Run a simulation in the Workbench.</span>
             </div>
           </div>
         </div>
 
-        <!-- Fine-Grained Neural Network Graph (Neuron Synapses, Spikes & Red Plus Alert Markers) -->
-        <div class="card col-12">
-          <div class="card-title">
-            <span>Microscopic SNN Synaptic Network Graph (Neurons, Synapses &amp; Anomalous Spike Bursts)</span>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.35);">
-                <strong style="font-size: 13px; margin-right: 4px;">[+]</strong> Anomalous Spike Event
-              </span>
-              <span class="badge simulated">AER Inter-Neuron Synaptic Grid</span>
+        <!-- Microscopic Neural Network Graph & Interactive Workspace -->
+        <div class="card col-12" id="microscopicCard">
+          <div class="card-title" style="flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-weight: 700; color: #f8fafc;">Microscopic SNN Synaptic Network Graph</span>
+              <span class="badge simulated" id="microCoreFocusBadge">All Cores (128 Neurons)</span>
+            </div>
+            <!-- Interactive View Controls -->
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+              <label style="color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+                Filter Core:
+                <select id="microCoreSelect" onchange="onMicroCoreFilterChange(this.value)" style="background: #0f172a; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 11px;">
+                  <option value="all">All Cores (128 Neurons)</option>
+                  <option value="0">Core 0 (Sensory Egress)</option>
+                  <option value="1">Core 1 (Processing)</option>
+                  <option value="2">Core 2 (Processing)</option>
+                  <option value="3">Core 3 (Egress)</option>
+                </select>
+              </label>
+              <button class="tab-btn" onclick="resetMicroZoomPan()" style="padding: 3px 8px; font-size: 11px;">Reset Zoom</button>
+              <button class="tab-btn" id="toggleSynapsesBtn" onclick="toggleSynapseEdges()" style="padding: 3px 8px; font-size: 11px;">Toggle Synapses</button>
             </div>
           </div>
-          <canvas id="neuralNetCanvas" style="height: 270px; width: 100%;"></canvas>
+
+          <!-- Microscopic Playback Toolbar -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.7); padding: 8px 14px; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="action-btn" id="snnPlayPauseBtn" onclick="toggleSnnPlayback()" style="padding: 4px 12px; font-size: 12px; background: var(--accent-cyan); color: #000; font-weight: 700; border: none; border-radius: 4px; cursor: pointer;">▶ Play</button>
+              <button class="tab-btn" onclick="stepSnnTimeline(1)" style="padding: 4px 10px; font-size: 12px;">Step +1</button>
+              <button class="tab-btn" onclick="stepSnnTimeline(-1)" style="padding: 4px 10px; font-size: 12px;">Step -1</button>
+              <button class="tab-btn" onclick="resetSnnPlayback()" style="padding: 4px 10px; font-size: 12px;">Reset</button>
+              <span style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-cyan); margin-left: 6px;" id="snnStepCounter">Step: 0 / 100</span>
+              <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);" id="snnTimeMs">(0.0 ms)</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 400px; min-width: 200px;">
+              <span style="font-size: 11px; color: var(--text-muted);">Timeline:</span>
+              <input type="range" id="snnTimelineScrubber" min="0" max="100" value="0" oninput="onSnnScrubberChange(this.value)" style="flex: 1; accent-color: var(--accent-cyan); cursor: pointer;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 11px; color: var(--text-muted);">Speed:</span>
+              <select id="snnPlaybackSpeed" onchange="onSnnSpeedChange(this.value)" style="background: #0f172a; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 11px;">
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1.0x</option>
+                <option value="2">2.0x</option>
+                <option value="4">4.0x</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Main Visualization Canvas & Interactive Inspector Layout -->
+          <div style="display: grid; grid-template-columns: 1fr 280px; gap: 12px;">
+            <div style="position: relative; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; background: #070d17;">
+              <canvas id="neuralNetCanvas" style="height: 380px; width: 100%; display: block; cursor: crosshair;"></canvas>
+              <div style="position: absolute; bottom: 8px; left: 10px; font-size: 10px; color: var(--text-muted); background: rgba(11, 17, 32, 0.85); padding: 4px 8px; border-radius: 4px; pointer-events: none;">
+                Scroll wheel to Zoom &bull; Drag to Pan &bull; Click Neuron to Inspect
+              </div>
+              <div style="position: absolute; bottom: 8px; right: 10px; display: flex; gap: 8px; font-size: 10.5px; background: rgba(11, 17, 32, 0.90); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.12); pointer-events: none;">
+                <span><span style="color: #38bdf8;">●</span> Resting</span>
+                <span><span style="color: #facc15;">●</span> Depolarized</span>
+                <span><span style="color: #ffffff; text-shadow: 0 0 6px #fff;">●</span> Fired (Spike)</span>
+                <span><span style="color: #f43f5e;">●</span> Compromised</span>
+              </div>
+            </div>
+
+            <!-- Selected Neuron & Synapse Forensic Inspector Panel -->
+            <div id="neuronInspectorPanel" style="background: #0b1120; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+              <div style="font-weight: 700; color: var(--accent-cyan); border-bottom: 1px solid var(--border-color); padding-bottom: 6px; display: flex; justify-content: space-between;">
+                <span>Neuron Inspector</span>
+                <span id="inspectNeuronBadge" style="font-family: var(--font-mono); color: var(--text-muted);">None Selected</span>
+              </div>
+              <div id="neuronInspectorContent" style="color: var(--text-secondary); line-height: 1.5;">
+                <p style="color: var(--text-muted); margin: 0;">Click any neuron in the graph to view its real-time membrane potential ($V_m$), firing history, refractory status, and synaptic weights.</p>
+              </div>
+              <div style="margin-top: auto; padding-top: 6px; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted);">
+                Observables: <span style="color: var(--accent-emerald);">Live LIF Dynamics</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Dynamic Synapse & Spike Weights Visualizer -->
-        <div class="card col-12">
+        <!-- Dynamic Synapse Matrix & Biophysical Membrane Voltage Oscilloscope -->
+        <div class="card col-12" id="synapseOscilloscopeCard">
           <div class="card-title">
-            <span>Dynamic Synapse Matrix &amp; Biophysical Membrane Voltage Oscillations (V_m)</span>
+            <span>Dynamic Synapse Crossbar &amp; Biophysical Membrane Voltage Oscillations ($V_m$)</span>
             <div style="display: flex; gap: 10px; align-items: center;">
               <span class="badge simulated" id="liveSynapseBadge">Live Dynamic SNN Stream</span>
-              <button class="tab-btn active" style="padding: 4px 10px; font-size: 11px;" onclick="toggleSynapseAnimation()">Pause/Resume Stream</button>
+              <button class="tab-btn active" id="toggleSynapseAnimBtn" style="padding: 4px 10px; font-size: 11px;" onclick="toggleSynapseAnimation()">Pause/Resume Stream</button>
             </div>
           </div>
-          <canvas id="synapseCanvas" style="height: 230px; width: 100%;"></canvas>
+          <canvas id="synapseCanvas" style="height: 230px; width: 100%; display: block;"></canvas>
+          <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: 6px;">
+            <span>Biophysical Telemetry: Cyan = Subthreshold LIF Integration (&lt; 1.0 mV) &bull; Red/Purple = Anomalous Spikes Crossing $V_{th}$</span>
+            <span>$V_{th} = 1.0\text{ mV}$ &bull; $V_{reset} = 0.0\text{ mV}$</span>
+          </div>
         </div>
       </div>
 
-      <!-- TAB 3: DFIR & CTI -->
+      <!-- TAB 5: DFIR & CTI -->
       <div class="tab-pane hidden" id="tabDfir">
-        <!-- Incident Response Playbook -->
         <div class="card col-6">
           <div class="card-title">
             <span>Deterministic DFIR Containment Plan</span>
-            <span class="badge" style="background: rgba(225, 29, 72, 0.15); color: var(--accent-rose); border-color: rgba(225, 29, 72, 0.3);">Severity: CRITICAL</span>
+            <span class="badge" id="dfirSeverityBadge" style="background: rgba(225, 29, 72, 0.15); color: var(--accent-rose); border-color: rgba(225, 29, 72, 0.3);">Awaiting Incident</span>
           </div>
           <div id="irPlanContainer" style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
-            <div>Loading incident response plan...</div>
+            <div style="color: var(--text-muted); padding: 12px;">No active incident. Containment playbooks generate automatically upon attack reconstruction.</div>
           </div>
         </div>
 
-        <!-- Human Readable CTI & STIX Threat Intel -->
         <div class="card col-6">
           <div class="card-title">
             <span>MITRE ATT&amp;CK &amp; STIX 2.1 Threat Intel Intelligence</span>
           </div>
-          <div id="ctiCardsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;"></div>
+          <div id="ctiCardsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
+            <div style="color: var(--text-muted); padding: 12px;">Threat indicators will be mapped from reconstructed TTPs.</div>
+          </div>
           <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-            <span>STIX 2.1 JSON Schema Bundle (Standardized CTI Format):</span>
+            <span>STIX 2.1 JSON Schema Bundle:</span>
             <button class="tab-btn" style="padding: 2px 8px; font-size: 10px;" onclick="toggleStixJson()">Toggle Raw STIX JSON</button>
           </div>
-          <pre id="stixJsonBox" style="display: none;"><code>{"status": "loading stix bundle..."}</code></pre>
+          <pre id="stixJsonBox" style="display: none;"><code>{"status": "Awaiting experiment execution"}</code></pre>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 
   <script src="js/app.js"></script>

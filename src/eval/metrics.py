@@ -6,6 +6,7 @@ import time
 import os
 from typing import Dict, Any, List, Optional
 from src.core.schemas import EvidencePackage, AttackReconstructionGraph, AttackGroundTruth
+from src.acquisition.integrity import ChainOfCustodyVerifier
 from .baselines import BaselineAnomalyDetectors
 from .reconstruction_score import ReconstructionScorer
 
@@ -42,6 +43,13 @@ class ForensicEvaluator:
         b1 = BaselineAnomalyDetectors.simple_spike_rate_threshold(evidence)
         b2 = BaselineAnomalyDetectors.periodic_log_sampling(evidence)
 
+        # Dynamic verification of Merkle root integrity
+        recomputed_hashes = [
+            ChainOfCustodyVerifier.hash_data(s.model_dump()) for s in evidence.snapshots
+        ]
+        recomputed_root = ChainOfCustodyVerifier.compute_merkle_root(recomputed_hashes)
+        merkle_passed = bool(recomputed_root == evidence.header.root_merkle_hash)
+
         metrics = {
             "evaluation_timestamp": time.time(),
             "scenario": reconstruction.scenario_name,
@@ -60,7 +68,7 @@ class ForensicEvaluator:
                 "total_snapshots_acquired": total_snapshots,
                 "total_spike_events_logged": total_spikes,
                 "included_artifacts": [a.value for a in evidence.header.included_artifacts],
-                "merkle_verification_passed": True,
+                "merkle_verification_passed": merkle_passed,
             },
             "comparative_advantage_over_baselines": {
                 "neuroforensics": {

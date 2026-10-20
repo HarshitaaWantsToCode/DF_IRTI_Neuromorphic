@@ -26,6 +26,78 @@
       "TOPOLOGY_ROUTING": "Redundant",
       "CONFIGURATION": "Redundant",
       "INPUT_OUTPUT": "Redundant"
+    },
+    "voltage_clamp": {
+      "SPIKE_EVENTS": "Redundant",
+      "SPIKE_TIMING": "Redundant",
+      "NEURON_STATE": "Required",
+      "SYNAPTIC_STATE": "Redundant",
+      "TOPOLOGY_ROUTING": "Redundant",
+      "CONFIGURATION": "Required",
+      "INPUT_OUTPUT": "Redundant"
+    },
+    "routing_hijack": {
+      "SPIKE_EVENTS": "Redundant",
+      "SPIKE_TIMING": "Redundant",
+      "NEURON_STATE": "Redundant",
+      "SYNAPTIC_STATE": "Redundant",
+      "TOPOLOGY_ROUTING": "Required",
+      "CONFIGURATION": "Required",
+      "INPUT_OUTPUT": "Redundant"
+    },
+    "refractory_suppression": {
+      "SPIKE_EVENTS": "Redundant",
+      "SPIKE_TIMING": "Required",
+      "NEURON_STATE": "Required",
+      "SYNAPTIC_STATE": "Redundant",
+      "TOPOLOGY_ROUTING": "Redundant",
+      "CONFIGURATION": "Redundant",
+      "INPUT_OUTPUT": "Redundant"
+    },
+    "aer_timestamp_replay": {
+      "SPIKE_EVENTS": "Required",
+      "SPIKE_TIMING": "Required",
+      "NEURON_STATE": "Redundant",
+      "SYNAPTIC_STATE": "Redundant",
+      "TOPOLOGY_ROUTING": "Redundant",
+      "CONFIGURATION": "Redundant",
+      "INPUT_OUTPUT": "Required"
+    },
+    "stdp_corruption": {
+      "SPIKE_EVENTS": "Redundant",
+      "SPIKE_TIMING": "Required",
+      "NEURON_STATE": "Redundant",
+      "SYNAPTIC_STATE": "Required",
+      "TOPOLOGY_ROUTING": "Redundant",
+      "CONFIGURATION": "Redundant",
+      "INPUT_OUTPUT": "Redundant"
+    },
+    "saccade_evasion": {
+      "SPIKE_EVENTS": "Required",
+      "SPIKE_TIMING": "Redundant",
+      "NEURON_STATE": "Redundant",
+      "SYNAPTIC_STATE": "Redundant",
+      "TOPOLOGY_ROUTING": "Redundant",
+      "CONFIGURATION": "Redundant",
+      "INPUT_OUTPUT": "Required"
+    },
+    "threshold_depression": {
+      "SPIKE_EVENTS": "Redundant",
+      "SPIKE_TIMING": "Redundant",
+      "NEURON_STATE": "Required",
+      "SYNAPTIC_STATE": "Redundant",
+      "TOPOLOGY_ROUTING": "Redundant",
+      "CONFIGURATION": "Required",
+      "INPUT_OUTPUT": "Redundant"
+    },
+    "bitflip_fault": {
+      "SPIKE_EVENTS": "Redundant",
+      "SPIKE_TIMING": "Redundant",
+      "NEURON_STATE": "Redundant",
+      "SYNAPTIC_STATE": "Required",
+      "TOPOLOGY_ROUTING": "Required",
+      "CONFIGURATION": "Redundant",
+      "INPUT_OUTPUT": "Redundant"
     }
   },
   "summary": {
@@ -54,6 +126,87 @@
         [
           "SPIKE_EVENTS",
           "SPIKE_TIMING"
+        ]
+      ]
+    },
+    "voltage_clamp": {
+      "attack_name": "Membrane Voltage Clamp / Somatic Silencing",
+      "minimum_cardinality": 2,
+      "minimum_sufficient_sets": [
+        [
+          "NEURON_STATE",
+          "CONFIGURATION"
+        ]
+      ]
+    },
+    "routing_hijack": {
+      "attack_name": "AER Routing Table Hijack / Packet Blackhole",
+      "minimum_cardinality": 2,
+      "minimum_sufficient_sets": [
+        [
+          "TOPOLOGY_ROUTING",
+          "CONFIGURATION"
+        ]
+      ]
+    },
+    "refractory_suppression": {
+      "attack_name": "Refractory Suppression / Hyper-Excitability Exploit",
+      "minimum_cardinality": 2,
+      "minimum_sufficient_sets": [
+        [
+          "NEURON_STATE",
+          "SPIKE_TIMING"
+        ]
+      ]
+    },
+    "aer_timestamp_replay": {
+      "attack_name": "AER Timestamp Spoofing & Replay Attack",
+      "minimum_cardinality": 3,
+      "minimum_sufficient_sets": [
+        [
+          "SPIKE_EVENTS",
+          "SPIKE_TIMING",
+          "INPUT_OUTPUT"
+        ]
+      ]
+    },
+    "stdp_corruption": {
+      "attack_name": "Adversarial STDP Online Plasticity Poisoning",
+      "minimum_cardinality": 2,
+      "minimum_sufficient_sets": [
+        [
+          "SYNAPTIC_STATE",
+          "SPIKE_TIMING"
+        ]
+      ]
+    },
+    "saccade_evasion": {
+      "attack_name": "Sensory Blind-Spot & Saccadic Masking Evasion",
+      "minimum_cardinality": 2,
+      "minimum_sufficient_sets": [
+        [
+          "INPUT_OUTPUT",
+          "SPIKE_EVENTS"
+        ]
+      ]
+    },
+    "threshold_depression": {
+      "attack_name": "Firing Threshold Depression / Global Hyperexcitability",
+      "minimum_cardinality": 2,
+      "minimum_sufficient_sets": [
+        [
+          "CONFIGURATION",
+          "NEURON_STATE"
+        ]
+      ]
+    },
+    "bitflip_fault": {
+      "attack_name": "Row-Hammer / Laser Fault Injection Bit-Flip",
+      "minimum_cardinality": 2,
+      "minimum_sufficient_sets": [
+        [
+          "SYNAPTIC_STATE",
+          "TOPOLOGY_ROUTING"
         ]
       ]
     }

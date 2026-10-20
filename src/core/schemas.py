@@ -35,7 +35,7 @@ class EvidenceRecord(BaseModel):
 
 class SpikeEvent(BaseModel):
     """Represents a single spike communication event between neurons/cores."""
-    event_id: str = Field(default_factory=lambda: str(uuid.uuid4())[:8])
+    event_id: Optional[str] = None
     timestamp_step: int
     timestamp_ms: float
     source_core: int
@@ -57,7 +57,7 @@ class CoreStateSnapshot(BaseModel):
 class SystemStateSnapshot(BaseModel):
     """Represents the global system state at a discrete acquisition time step."""
     step: int
-    timestamp_epoch: float = Field(default_factory=time.time)
+    timestamp_epoch: float = 0.0
     cores: Dict[int, CoreStateSnapshot]
     recent_spikes: List[SpikeEvent] = Field(default_factory=list)
     sensory_inputs: Optional[List[int]] = None

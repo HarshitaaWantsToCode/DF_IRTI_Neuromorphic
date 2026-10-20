@@ -37,6 +37,8 @@ class PipelineRunner:
         scenario_key: str = "synaptic_poisoning",
         output_dir: str = "data/outputs",
         attack_config_path: str = "config/attack_scenarios.yaml",
+        dataset_sample_path: Optional[str] = None,
+        max_dataset_events: int = 1000,
     ) -> Dict[str, Any]:
         """Runs an end-to-end experiment for a specified scenario."""
         ensure_directory(output_dir)
@@ -47,6 +49,26 @@ class PipelineRunner:
 
         scenario_cfg = attack_scenarios[scenario_key]
         console.print(f"\n[bold cyan][*] Initializing NeuroForensics Pipeline for scenario: [yellow]{scenario_cfg['name']}[/yellow][/bold cyan]")
+
+        # Load genuine dataset events if supplied
+        dataset_events_by_step: Dict[int, List[int]] = {}
+        dataset_meta_info = {}
+        if dataset_sample_path and os.path.exists(dataset_sample_path):
+            from src.datasets.dvs128_loader import DVS128GestureLoader
+            loader = DVS128GestureLoader()
+            sample = loader.load_sample(dataset_sample_path, max_events=max_dataset_events)
+            dataset_meta_info = {
+                "source_file": dataset_sample_path,
+                "dataset_name": "DVS128 Gesture",
+                "events_ingested": len(sample.events),
+                "duration_seconds": sample.duration_seconds,
+            }
+            # Bin events into simulation steps (dt = 1ms)
+            for evt in sample.events:
+                step_idx = int(evt.timestamp * 1000) % 100  # wrap inside 100 steps
+                if step_idx not in dataset_events_by_step:
+                    dataset_events_by_step[step_idx] = []
+                dataset_events_by_step[step_idx].append(evt.channel_id % 32)
 
         # 1. Person 1: Neuromorphic Simulation & Attack Injection
         sim_cfg = self.config["neuromorphic"]
@@ -68,13 +90,20 @@ class PipelineRunner:
         )
         collector.attach_system_context(
             topology={"num_cores": sim_cfg["num_cores"], "neurons_per_core": sim_cfg["neurons_per_core"]},
-            configuration={"decay_factor": sim_cfg["decay_factor"], "threshold_mv": sim_cfg["threshold_mv"]},
+            configuration={
+                "decay_factor": sim_cfg["decay_factor"],
+                "threshold_mv": sim_cfg["threshold_mv"],
+                "dataset_provenance": dataset_meta_info,
+            },
         )
 
         total_steps = sim_cfg.get("time_steps", 100)
         with console.status("[bold green]Simulating SNN execution and recording volatile states..."):
             for step in range(total_steps):
-                snapshot, spikes = simulator.step(step)
+                step_input = None
+                if step in dataset_events_by_step:
+                    step_input = {0: dataset_events_by_step[step]}
+                snapshot, spikes = simulator.step(step, input_spikes=step_input)
                 collector.record_step(snapshot, spikes)
 
         # Seal evidence into .nfd
@@ -134,6 +163,16 @@ class PipelineRunner:
             metadata={"attack_type": scenario_key, "scenario_name": scenario_cfg["name"]},
         )
 
+        # Extract recorded step-by-step spike stream and topology
+        topology_data = simulator.topology.export_topology_graph()
+        spike_stream_records = [s.model_dump() for s in collector.spike_stream]
+
+        # Extract per-core final membrane potentials
+        final_potentials = {
+            c: [round(float(v), 4) for v in simulator.v_membrane[c]]
+            for c in range(simulator.num_cores)
+        }
+
         # Save web dashboard state payload
         dashboard_state = {
             "scenario": scenario_cfg,
@@ -143,6 +182,9 @@ class PipelineRunner:
             "ir_plan": ir_plan.model_dump(),
             "indicators": [i.model_dump() for i in threat_indicators],
             "graph": d3_graph,
+            "network_topology": topology_data,
+            "spike_stream": spike_stream_records,
+            "final_potentials": final_potentials,
             "metrics": metrics,
             "sufficiency": {
                 "threshold": min_evidence_info["threshold"],

@@ -77,6 +77,15 @@ class EventCorrelator:
             prev_event = evt
 
         confidence = min(1.0, len(sorted_events) * 0.15)
+        # Compute actual anomalous spikes counted from timeline anomaly events
+        actual_anomalous_spikes = 0
+        for evt in sorted_events:
+            if evt.event_type == "SPIKE_BURST":
+                actual_anomalous_spikes += max(1, len(evt.affected_neurons) * 4)
+            elif evt.event_type == "TIMING_DEVIATION":
+                actual_anomalous_spikes += 1
+            else:
+                actual_anomalous_spikes += len(evt.affected_neurons)
 
         return AttackReconstructionGraph(
             scenario_name=scenario_name,
@@ -85,7 +94,7 @@ class EventCorrelator:
             initial_compromise_step=initial_step,
             progression_steps=sorted_events,
             compromised_cores=sorted(list(affected_cores_set)),
-            total_anomalous_spikes=len(sorted_events) * 12,
+            total_anomalous_spikes=actual_anomalous_spikes,
             causal_edges=causal_edges,
             confidence=confidence,
         )

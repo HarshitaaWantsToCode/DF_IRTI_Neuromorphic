@@ -52,14 +52,33 @@ class NeuromorphicSimulator:
             return self.attack_injector.ground_truth
         return None
 
-    def step(self, step_idx: int) -> Tuple[SystemStateSnapshot, List[SpikeEvent]]:
-        """Simulates 1 discrete time-step of the multi-core SNN."""
+    def step(
+        self,
+        step_idx: int,
+        input_spikes: Optional[Dict[int, List[int]]] = None,
+    ) -> Tuple[SystemStateSnapshot, List[SpikeEvent]]:
+        """
+        Simulates 1 discrete time-step of the multi-core SNN.
+        If input_spikes is provided ({core_id: [neuron_ids]}), injects depolarizing potential into those neurons.
+        Otherwise falls back to default sensory Poisson stimulus on Core 0.
+        """
         step_spikes: List[SpikeEvent] = []
 
-        # 1. External sensory Poisson input injection to Core 0
-        input_mask = self.rng.rand(self.neurons_per_core) < 0.12
-        sensory_active = np.where(input_mask)[0].tolist()
-        self.v_membrane[0] += input_mask * 0.35
+        # 1. External sensory input injection
+        sensory_active: List[int] = []
+        if input_spikes is not None:
+            for c_id, neuron_ids in input_spikes.items():
+                if c_id in self.v_membrane:
+                    for n_id in neuron_ids:
+                        if 0 <= n_id < self.neurons_per_core:
+                            self.v_membrane[c_id][n_id] += 0.45
+                            if c_id == 0:
+                                sensory_active.append(n_id)
+        else:
+            # Default internal sensory Poisson input injection to Core 0
+            input_mask = self.rng.rand(self.neurons_per_core) < 0.12
+            sensory_active = np.where(input_mask)[0].tolist()
+            self.v_membrane[0] += input_mask * 0.35
 
         # 2. Update Membrane Dynamics (LIF model)
         for c in range(self.num_cores):

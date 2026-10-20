@@ -39,3 +39,44 @@ class NeuromorphicTopology:
     def set_synaptic_weights(self, core_id: int, weights: np.ndarray):
         """Updates the synaptic weight matrix for a core (used in attacks or reset)."""
         self.intra_weights[core_id] = weights.copy()
+
+    def export_topology_graph(self) -> Dict[str, Any]:
+        """
+        Exports full microscopic neuron & synapse topology for visualization.
+        Returns cores metadata, active intra-core synapses, and active inter-core synapses.
+        """
+        intra_synapses = []
+        for c in range(self.num_cores):
+            w = self.intra_weights[c]
+            nz_src, nz_dst = np.where(w > 0.0)
+            for s_idx, d_idx in zip(nz_src, nz_dst):
+                intra_synapses.append({
+                    "src_core": int(c),
+                    "src_neuron": int(s_idx),
+                    "dst_core": int(c),
+                    "dst_neuron": int(d_idx),
+                    "weight": round(float(w[s_idx, d_idx]), 4),
+                    "is_inter": False,
+                })
+
+        inter_synapses = []
+        for (src_c, dst_c), w in self.inter_weights.items():
+            nz_src, nz_dst = np.where(w > 0.0)
+            for s_idx, d_idx in zip(nz_src, nz_dst):
+                inter_synapses.append({
+                    "src_core": int(src_c),
+                    "src_neuron": int(s_idx),
+                    "dst_core": int(dst_c),
+                    "dst_neuron": int(d_idx),
+                    "weight": round(float(w[s_idx, d_idx]), 4),
+                    "is_inter": True,
+                })
+
+        return {
+            "num_cores": self.num_cores,
+            "neurons_per_core": self.neurons_per_core,
+            "total_neurons": self.num_cores * self.neurons_per_core,
+            "intra_synapses": intra_synapses,
+            "inter_synapses": inter_synapses,
+            "total_synapses": len(intra_synapses) + len(inter_synapses),
+        }

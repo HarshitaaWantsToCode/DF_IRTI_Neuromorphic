@@ -61,20 +61,28 @@ def run_ablation(output_dir):
 @click.option("--port", "-p", default=8080, help="Port to host the dashboard.")
 @click.option("--open-browser/--no-open-browser", default=True, help="Open browser on start.")
 def serve_dashboard(port, open_browser):
-    """Starts the local web dashboard server for visualizing attack topology and timelines."""
-    web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
-    os.chdir(web_dir)
+    """Starts the local web dashboard server (FastAPI with API endpoints, or static fallback)."""
+    url = f"http://localhost:{port}"
+    click.echo(f"[+] NeuroForensics Web Dashboard initializing on port {port}...")
+    if open_browser:
+        webbrowser.open(url)
 
-    Handler = http.server.SimpleHTTPRequestHandler
-    with socketserver.TCPServer(("", port), Handler) as httpd:
-        url = f"http://localhost:{port}"
-        click.echo(f"[+] NeuroForensics Web Dashboard running at: {url}")
-        if open_browser:
-            webbrowser.open(url)
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            click.echo("\nServer stopped.")
+    try:
+        import uvicorn
+        # Run FastAPI app with static mount + full live API endpoints (/api/datasets, /api/backends, /api/attacks/execute)
+        click.echo(f"[+] Running full interactive API backend (FastAPI/Uvicorn) at: {url}")
+        uvicorn.run("web.api.server:app", host="0.0.0.0", port=port, log_level="info")
+    except Exception as e:
+        click.echo(f"[*] Note: Falling back to built-in HTTP server ({e}).")
+        web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
+        os.chdir(web_dir)
+        Handler = http.server.SimpleHTTPRequestHandler
+        with socketserver.TCPServer(("", port), Handler) as httpd:
+            click.echo(f"[+] NeuroForensics Web Dashboard (Static Mode) running at: {url}")
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                click.echo("\nServer stopped.")
 
 
 @cli.command("evaluate")
