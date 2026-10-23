@@ -2,7 +2,7 @@
 Topology and Core inter-connectivity for Spiking Neural Networks (Person 1).
 """
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 class NeuromorphicTopology:

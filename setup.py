@@ -19,6 +19,8 @@ setup(
         "pyyaml>=6.0",
         "stix2>=3.0.1",
         "rich>=13.0.0",
+        "fastapi>=0.110.0",
+        "uvicorn[standard]>=0.27.0",
     ],
     entry_points={
         "console_scripts": [
