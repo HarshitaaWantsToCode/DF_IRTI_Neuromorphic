@@ -22,7 +22,7 @@ class LavaCPUAdapter(SNNBackendAdapter):
 
     def __init__(self, venv_path: Optional[str] = None):
         self._project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        self._venv_path = venv_path or os.path.join(self._project_root, ".venv-lava")
+        self._venv_path = venv_path or os.path.join(self._project_root, ".venv_lava")
         self._worker_script = os.path.join(self._project_root, "src", "backends", "lava_worker.py")
         
         # Determine python executable in venv

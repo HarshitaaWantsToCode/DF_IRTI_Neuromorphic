@@ -93,7 +93,7 @@ The dashboard's API backend uses FastAPI and Uvicorn; both are installed by the 
 
 ### 5. Run Test Suite
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 ---
