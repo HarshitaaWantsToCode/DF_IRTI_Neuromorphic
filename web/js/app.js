@@ -1119,6 +1119,21 @@ function onAttackTypeChange(attackType) {
   onScenarioChange(attackType);
 }
 
+function onDatasetSourceChange(sourceType) {
+  const bannerBackend = document.getElementById('bannerBackend');
+  const bannerExpId = document.getElementById('bannerExpId');
+  if (sourceType === 'dvs128_genuine') {
+    if (bannerBackend) bannerBackend.textContent = 'DVS128 Gesture (Genuine AEDAT 3.1) - Multi-Core LIF';
+    if (bannerExpId) bannerExpId.textContent = 'exp_stage4_dvs128_genuine';
+  } else if (sourceType === 'shd_genuine') {
+    if (bannerBackend) bannerBackend.textContent = 'SHD Digits (Genuine HDF5) - Multi-Core LIF';
+    if (bannerExpId) bannerExpId.textContent = 'exp_stage4_shd_genuine';
+  } else {
+    if (bannerBackend) bannerBackend.textContent = 'Built-in LIF Simulator (Synthetic Poisson Stream)';
+    if (bannerExpId) bannerExpId.textContent = 'exp_synthetic_fixture';
+  }
+}
+
 // -------------------------------------------------------------
 // 2. Dataset Explorer & Genuine Sample Inspection
 // -------------------------------------------------------------

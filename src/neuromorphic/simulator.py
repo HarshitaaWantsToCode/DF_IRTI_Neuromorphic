@@ -1,15 +1,20 @@
 """
-Leaky Integrate-and-Fire (LIF) Multi-Core Neuromorphic Simulator (Person 1).
+Leaky Integrate-and-Fire (LIF) Multi-Core Neuromorphic Simulator with
+Timestamp-Aware Scheduling and Bounded Inter-Core Queues.
 """
 import numpy as np
 from typing import Dict, List, Optional, Tuple, Any
 from src.core.schemas import SpikeEvent, CoreStateSnapshot, SystemStateSnapshot, AttackGroundTruth
 from .topology import NeuromorphicTopology
 from .attacks import NeuromorphicAttackInjector
+from .intercore_queue import IntercoreQueue, TimestampEventScheduler
 
 
 class NeuromorphicSimulator:
-    """Simulates an event-driven, multi-core SNN architecture with membrane dynamics and spike routing."""
+    """
+    Simulates an event-driven, multi-core SNN architecture with membrane dynamics,
+    timestamp-aware scheduling, and physical queue saturation tracking.
+    """
 
     def __init__(
         self,
@@ -20,6 +25,8 @@ class NeuromorphicSimulator:
         reset_mv: float = 0.0,
         dt_ms: float = 1.0,
         seed: int = 42,
+        queue_capacity: int = 50,
+        service_rate_per_ms: float = 10.0,
     ):
         self.num_cores = num_cores
         self.neurons_per_core = neurons_per_core
@@ -40,6 +47,14 @@ class NeuromorphicSimulator:
             c: np.zeros(neurons_per_core, dtype=np.int32) for c in range(num_cores)
         }
 
+        # Stage 4: Physical inter-core bounded queues per core
+        self.queues: Dict[int, IntercoreQueue] = {
+            c: IntercoreQueue(capacity=queue_capacity, service_rate_per_ms=service_rate_per_ms)
+            for c in range(num_cores)
+        }
+        # Stage 4: Continuous time scheduler for microsecond-precise event release
+        self.scheduler = TimestampEventScheduler()
+
         self.attack_injector: Optional[NeuromorphicAttackInjector] = None
 
     def attach_attack(self, scenario_config: Dict[str, Any]):
@@ -52,6 +67,10 @@ class NeuromorphicSimulator:
             return self.attack_injector.ground_truth
         return None
 
+    def get_queue_diagnostics(self) -> Dict[int, Dict[str, Any]]:
+        """Returns queue utilization and packet drop telemetry for all cores."""
+        return {c: q.get_metrics() for c, q in self.queues.items()}
+
     def step(
         self,
         step_idx: int,
@@ -59,9 +78,9 @@ class NeuromorphicSimulator:
     ) -> Tuple[SystemStateSnapshot, List[SpikeEvent]]:
         """
         Simulates 1 discrete time-step of the multi-core SNN.
-        If input_spikes is provided ({core_id: [neuron_ids]}), injects depolarizing potential into those neurons.
-        Otherwise falls back to default sensory Poisson stimulus on Core 0.
+        Uses timestamp scheduling so that jittered events arrive at their true physical delivery time.
         """
+        current_time_ms = float(step_idx * self.dt_ms)
         step_spikes: List[SpikeEvent] = []
 
         # 1. External sensory input injection
@@ -80,7 +99,15 @@ class NeuromorphicSimulator:
             sensory_active = np.where(input_mask)[0].tolist()
             self.v_membrane[0] += input_mask * 0.35
 
-        # 2. Update Membrane Dynamics (LIF model)
+        # 2. Release any scheduled spikes that are due up to current_time_ms
+        due_spikes = self.scheduler.pop_due_events(current_time_ms)
+        for spike in due_spikes:
+            # Enqueue into destination core queue
+            dst_c = spike.target_core
+            if dst_c in self.queues:
+                self.queues[dst_c].enqueue(spike, current_time_ms)
+
+        # 3. Update Membrane Dynamics (LIF model)
         for c in range(self.num_cores):
             # Leaky integration decay
             self.v_membrane[c] *= self.decay_factor
@@ -100,17 +127,18 @@ class NeuromorphicSimulator:
                         inter_w = self.topology.inter_weights[(c, dst_c)]
                         target_neurons = np.where(inter_w[idx, :] > 0)[0]
                         for dst_n in target_neurons:
-                            step_spikes.append(
-                                SpikeEvent(
-                                    timestamp_step=step_idx,
-                                    timestamp_ms=float(step_idx * self.dt_ms),
-                                    source_core=c,
-                                    source_neuron=int(idx),
-                                    target_core=dst_c,
-                                    target_neuron=int(dst_n),
-                                    voltage_mv=float(inter_w[idx, dst_n]),
-                                )
+                            spike_evt = SpikeEvent(
+                                timestamp_step=step_idx,
+                                timestamp_ms=current_time_ms,
+                                source_core=c,
+                                source_neuron=int(idx),
+                                target_core=dst_c,
+                                target_neuron=int(dst_n),
+                                voltage_mv=float(inter_w[idx, dst_n]),
                             )
+                            step_spikes.append(spike_evt)
+                            # Schedule delivery with standard propagation delay (1.0 ms)
+                            self.scheduler.schedule(spike_evt, current_time_ms + self.dt_ms)
 
                 # Reset membrane potential and trigger refractory state
                 self.v_membrane[c][idx] = self.reset_mv
@@ -119,19 +147,40 @@ class NeuromorphicSimulator:
             # Decrement refractory counter
             self.refractory[c] = np.maximum(0, self.refractory[c] - 1)
 
-        # 3. Deliver inter-core spikes
-        for spike in step_spikes:
-            dst_c = spike.target_core
-            dst_n = spike.target_neuron
-            if dst_c in self.v_membrane:
-                self.v_membrane[dst_c][dst_n] += spike.voltage_mv
-
         # 4. Apply Attack Perturbations if active
         if self.attack_injector:
             injected = self.attack_injector.apply_attack(step_idx, self.v_membrane, step_spikes)
-            step_spikes.extend(injected)
+            # Stage 4: Jittered or flood spikes are properly scheduled
+            for inj_spike in injected:
+                step_spikes.append(inj_spike)
+                # If timestamp_ms was modified by jitter or flood, schedule according to its real timestamp
+                sched_time = max(current_time_ms, inj_spike.timestamp_ms)
+                self.scheduler.schedule(inj_spike, sched_time)
 
-        # 5. Build Core Snapshots
+            # If existing inter-core spikes were jittered, reschedule them
+            if self.attack_injector.config.get("jitter_magnitude_ms"):
+                # Clear and re-populate scheduler with jittered spike timestamps
+                # Re-schedule all target core spikes with updated timestamp_ms
+                re_items = []
+                while len(self.scheduler._heap) > 0:
+                    it = self.scheduler._heap.pop(0)
+                    if it.spike.source_core == self.attack_injector.config.get("target_core"):
+                        sched_time = max(current_time_ms, it.spike.timestamp_ms)
+                        it.delivery_time_ms = sched_time
+                    re_items.append(it)
+                import heapq
+                heapq.heapify(re_items)
+                self.scheduler._heap = re_items
+
+        # 5. Service inter-core queues and deliver spikes to neurons
+        for c in range(self.num_cores):
+            serviced = self.queues[c].service_step(current_time_ms, dt_ms=self.dt_ms)
+            for spike in serviced:
+                dst_n = spike.target_neuron
+                if 0 <= dst_n < self.neurons_per_core:
+                    self.v_membrane[c][dst_n] += spike.voltage_mv
+
+        # 6. Build Core Snapshots
         core_snapshots: Dict[int, CoreStateSnapshot] = {}
         for c in range(self.num_cores):
             active_cnt = sum(1 for s in step_spikes if s.source_core == c)

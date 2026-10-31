@@ -41,6 +41,10 @@ class EventCorrelator:
             detected_attack_type = "synaptic_poisoning"
             scenario_name = "Synaptic Poisoning / Weight Trojan"
             root_event = synapse_events[0]
+        elif burst_events and len(burst_events) >= len(timing_events):
+            detected_attack_type = "spike_storm"
+            scenario_name = "Denial-of-Service Spike Flooding Storm"
+            root_event = burst_events[0]
         elif timing_events:
             detected_attack_type = "timing_jitter"
             scenario_name = "Temporal Desynchronization / Jitter Attack"

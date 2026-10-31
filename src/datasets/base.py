@@ -131,6 +131,47 @@ class DatasetLoader(ABC):
         """
         ...
 
+    def load_recording(self, path: str, sample_index: int = 0, split: DatasetSplit = DatasetSplit.UNKNOWN, **kwargs) -> DatasetSample:
+        """Common interface to load a recording/sample."""
+        return self.load_sample(path, sample_index=sample_index, split=split, **kwargs)
+
+    def get_events(self, path: str, sample_index: int = 0, **kwargs) -> List[NeuromorphicEvent]:
+        """Extract only events for a recording."""
+        sample = self.load_recording(path, sample_index=sample_index, **kwargs)
+        return sample.events
+
+    def get_labels(self, path: str, sample_index: int = 0) -> Tuple[Optional[int], Optional[str]]:
+        """Extract label id and name for a recording."""
+        sample = self.load_recording(path, sample_index=sample_index)
+        return sample.label, sample.label_name
+
+    def get_metadata(self, path: str, split: DatasetSplit = DatasetSplit.UNKNOWN) -> DatasetMetadata:
+        """Alias for load_metadata."""
+        return self.load_metadata(path, split=split)
+
+    def get_source_provenance(self, path: str) -> Dict[str, Any]:
+        """Extract source provenance and checksum."""
+        meta = self.load_metadata(path)
+        return {
+            "dataset_id": meta.dataset_id,
+            "dataset_name": meta.dataset_name,
+            "source_url": meta.source_url,
+            "citation": meta.citation,
+            "license": meta.license,
+            "file_checksum_sha256": meta.file_checksum_sha256,
+            "file_size_bytes": meta.file_size_bytes,
+            "split": meta.split.value,
+        }
+
+    def validate_integrity(self, path: str, expected_sha256: Optional[str] = None) -> Tuple[bool, str]:
+        """Validate raw file integrity via SHA-256."""
+        if not os.path.isfile(path):
+            return False, f"File not found: {path}"
+        actual_hash = self.compute_file_checksum(path, "sha256")
+        if expected_sha256 and actual_hash.lower() != expected_sha256.lower():
+            return False, f"Checksum mismatch: expected {expected_sha256}, got {actual_hash}"
+        return True, actual_hash
+
     def compute_file_checksum(self, path: str, algorithm: str = "sha256") -> str:
         """Compute a cryptographic hash of the raw file. Reads in 64KB chunks."""
         h = hashlib.new(algorithm)

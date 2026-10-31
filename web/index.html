@@ -35,19 +35,27 @@
     <div class="card col-12" id="experimentBanner" style="margin-bottom: 20px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent-cyan);">
       <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
         <div>
+          <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">DATASET INPUT SOURCE</label>
+          <select id="datasetSourceSelect" class="scenario-dropdown" style="padding: 4px 10px; font-size: 12px; background: #0f172a; color: #a78bfa; border: 1px solid #8b5cf6; border-radius: 4px; font-weight: 600;" onchange="onDatasetSourceChange(this.value)">
+            <option value="dvs128_genuine" selected>Genuine Recorded: IBM DVS128 Gesture (events_128.aedat)</option>
+            <option value="shd_genuine">Genuine Recorded: Spiking Heidelberg Digits (SHD HDF5)</option>
+            <option value="synthetic_fixture">Synthetic Test Fixture (Simulated Poisson Stream)</option>
+          </select>
+        </div>
+        <div>
           <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">SELECT INCIDENT SCENARIO</label>
           <select id="scenarioSelect" class="scenario-dropdown" style="padding: 4px 10px; font-size: 12px; background: #0f172a; color: #38bdf8; border: 1px solid var(--accent-cyan); border-radius: 4px; font-weight: 600;" onchange="onScenarioChange(this.value)">
-            <option value="synaptic_poisoning">1. Synaptic Weight Poisoning (Root: C2 | Score: 88.5%)</option>
-            <option value="spike_storm">2. DoS Spike Flooding Storm (Root: C1 | Score: 92.4%)</option>
-            <option value="timing_jitter">3. Phase Desync / Temporal Jitter (Root: C1 | Score: 86.5%)</option>
-            <option value="voltage_clamp">4. Somatic Voltage Clamp / Leak Silencing (Root: C0 | Score: 79.2%)</option>
-            <option value="routing_hijack">5. AER NoC Routing Table Hijack (Root: C1 | Score: 84.8%)</option>
-            <option value="refractory_suppression">6. Refractory Period Suppression (Root: C2 | Score: 81.6%)</option>
-            <option value="aer_timestamp_replay">7. AER Timestamp Replay Attack (Root: C0 | Score: 87.1%)</option>
-            <option value="stdp_corruption">8. Adversarial STDP Plasticity Poisoning (Root: C2 | Score: 89.4%)</option>
-            <option value="saccade_evasion">9. Saccadic Masking & Blind-Spot Evasion (Root: C0 | Score: 76.5%)</option>
-            <option value="threshold_depression">10. Threshold Depression Hyperexcitability (Root: C3 | Score: 83.0%)</option>
-            <option value="bitflip_fault">11. Laser / Row-Hammer Bit-Flip Fault (Root: C2 | Score: 85.3%)</option>
+            <option value="synaptic_poisoning">1. Synaptic Weight Poisoning (Target: Core 2)</option>
+            <option value="spike_storm">2. DoS Spike Flooding Storm (Target: Core 1)</option>
+            <option value="timing_jitter">3. Phase Desync / Temporal Jitter (Target: Core 1)</option>
+            <option value="voltage_clamp">4. Somatic Voltage Clamp / Leak Silencing (Target: Core 0)</option>
+            <option value="routing_hijack">5. AER NoC Routing Table Hijack (Target: Core 1)</option>
+            <option value="refractory_suppression">6. Refractory Period Suppression (Target: Core 2)</option>
+            <option value="aer_timestamp_replay">7. AER Timestamp Replay Attack (Target: Core 0)</option>
+            <option value="stdp_corruption">8. Adversarial STDP Plasticity Poisoning (Target: Core 2)</option>
+            <option value="saccade_evasion">9. Saccadic Masking & Blind-Spot Evasion (Target: Core 0)</option>
+            <option value="threshold_depression">10. Threshold Depression Hyperexcitability (Target: Core 3)</option>
+            <option value="bitflip_fault">11. Laser / Row-Hammer Bit-Flip Fault (Target: Core 2)</option>
           </select>
         </div>
         <div>
@@ -120,8 +128,8 @@
 
             <div style="display: flex; gap: 12px;">
               <div style="flex: 1;">
-                <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">TARGET CORE</label>
-                <input id="wbTargetCore" type="number" min="0" max="3" value="2" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; margin-top: 4px;">
+                <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">TARGET CORE (0 to 5)</label>
+                <input id="wbTargetCore" type="number" min="0" max="5" value="2" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; margin-top: 4px;">
               </div>
               <div style="flex: 1;">
                 <label style="color: var(--text-muted); font-size: 11px; font-weight: 600;">START STEP (dt = 1ms)</label>
@@ -403,12 +411,12 @@
         <!-- Core Topology Visualizer -->
         <div class="card col-7">
           <div class="card-title">
-            <span>4-Core Neuromorphic Architecture &amp; Causal Anomaly Flow</span>
+            <span>6-Core Neuromorphic Architecture &amp; Causal Anomaly Flow</span>
             <span style="font-size: 11px; color: var(--accent-cyan);" id="topologyStatusBadge">Click Core to Focus Microscopic View</span>
           </div>
           <canvas id="topologyCanvas" style="height: 240px; cursor: pointer;"></canvas>
           <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: 6px;">
-            <span>Ring Routing Bus (C0 &rarr; C1 &rarr; C2 &rarr; C3 &rarr; C0)</span>
+            <span>Ring Routing Bus (C0 &rarr; C1 &rarr; C2 &rarr; C3 &rarr; C4 &rarr; C5 &rarr; C0)</span>
             <span><span style="color: var(--accent-rose);">●</span> Root Cause / Implicated &bull; <span style="color: var(--accent-cyan);">●</span> Healthy Population</span>
           </div>
         </div>
@@ -431,18 +439,20 @@
           <div class="card-title" style="flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <span style="font-weight: 700; color: #f8fafc;">Microscopic SNN Synaptic Network Graph</span>
-              <span class="badge simulated" id="microCoreFocusBadge">All Cores (128 Neurons)</span>
+              <span class="badge simulated" id="microCoreFocusBadge">All Cores (6 Cores / 120 Neurons)</span>
             </div>
             <!-- Interactive View Controls -->
             <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
               <label style="color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
                 Filter Core:
                 <select id="microCoreSelect" onchange="onMicroCoreFilterChange(this.value)" style="background: #0f172a; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 11px;">
-                  <option value="all">All Cores (128 Neurons)</option>
-                  <option value="0">Core 0 (Sensory Egress)</option>
-                  <option value="1">Core 1 (Processing)</option>
-                  <option value="2">Core 2 (Processing)</option>
-                  <option value="3">Core 3 (Egress)</option>
+                  <option value="all">All Cores (6 Cores / 120 Neurons)</option>
+                  <option value="0">Core 0 (Sensory Egress - 20 Neurons)</option>
+                  <option value="1">Core 1 (Feature Extraction - 20 Neurons)</option>
+                  <option value="2">Core 2 (Hidden Association - 20 Neurons)</option>
+                  <option value="3">Core 3 (Integrative Compute - 20 Neurons)</option>
+                  <option value="4">Core 4 (Neuromorphic Reservoir - 20 Neurons)</option>
+                  <option value="5">Core 5 (Motor / Classification Egress - 20 Neurons)</option>
                 </select>
               </label>
               <button class="tab-btn" onclick="resetMicroZoomPan()" style="padding: 3px 8px; font-size: 11px;">Reset Zoom</button>

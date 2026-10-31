@@ -64,13 +64,13 @@ class TimelineGenerator:
                     prev_weights[c_id] = curr_weights
 
                 # 2. Spike Flooding Storm / Burst Detection
-                if has_spikes and len(core_spikes_history[c_id]) >= 5:
+                if has_spikes and len(core_spikes_history[c_id]) >= 2:
                     recent_avg = np.mean(core_spikes_history[c_id][-10:-1]) if len(core_spikes_history[c_id]) >= 10 else np.mean(core_spikes_history[c_id][:-1])
                     recent_std = np.std(core_spikes_history[c_id][-10:-1]) if len(core_spikes_history[c_id]) >= 10 else np.std(core_spikes_history[c_id][:-1])
                     curr_val = core_state.active_spikes_count
                     
-                    min_burst_threshold = 20 if c_id == 0 else 12
-                    if curr_val >= min_burst_threshold and curr_val > (recent_avg + 3.5 * max(1.0, recent_std)):
+                    min_burst_threshold = 12 if evidence.header.neurons_per_core >= 32 else 6
+                    if curr_val >= min_burst_threshold and curr_val > (recent_avg + 2.5 * max(1.0, recent_std)):
                         events.append(
                             TimelineEvent(
                                 step=step,
