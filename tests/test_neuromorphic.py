@@ -15,6 +15,11 @@ def test_topology_initialization():
         assert w.shape == (16, 16)
         assert np.all(np.diag(w) == 0.0)
 
+    graph = topology.export_topology_graph()
+    assert graph["num_cores"] == 4
+    assert graph["neurons_per_core"] == 16
+    assert graph["total_synapses"] == len(graph["intra_synapses"]) + len(graph["inter_synapses"])
+
 
 def test_simulator_step():
     sim = NeuromorphicSimulator(num_cores=2, neurons_per_core=10)

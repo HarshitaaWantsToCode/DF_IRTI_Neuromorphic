@@ -57,10 +57,15 @@ The **Evidence Ablation Engine** (`src/eval/evidence_ablation.py`) exhaustively 
 ## 🚀 Quickstart & Reproduction
 
 ### 1. Installation
+Use Python 3.10 or newer. In Windows PowerShell:
 ```bash
-pip install -r requirements.txt
-pip install -e .
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install -e .
 ```
+If PowerShell blocks virtual-environment activation, run the commands using `.\.venv\Scripts\python.exe` instead of activating it.
 
 ### 2. Run Single Scenario Forensic Pipeline
 ```bash
@@ -84,14 +89,16 @@ Navigate to `http://localhost:8080` to inspect:
 - Chronological Reconstruction Timelines
 - Merkle Tree Verification Status
 
+The dashboard's API backend uses FastAPI and Uvicorn; both are installed by the commands above. If the API backend cannot start, the CLI reports the error and falls back to static-file serving, which does not provide the interactive API features.
+
 ### 5. Run Test Suite
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 ---
 
 ## 📌 Implementation Boundary & Known Limitations
 - **Backend Classification**: Simulator is a multi-core Leaky Integrate-and-Fire (LIF) network with deterministic ring-bus topology.
-- **Physical Hardware**: Neuromorphic execution is **simulated** in software. Physical hardware integration (e.g. Intel Loihi / SpiNNaker adapters) are research interfaces for future hardware runtime bindings.
-- **Integrity**: Forensic containers (`.nfd` / `.nfd.gz`) enforce SHA-256 block hashing and cryptographic Merkle tree chain-of-custody verification.
+- **Physical Hardware**: The default research pipeline runs in a software simulator. The Intel Lava CPU backend is optional and requires a separate Python 3.10 environment with Lava installed; it is not needed for the default pipeline.
+- **Integrity**: Forensic snapshots are SHA-256 hashed and combined into a Merkle root for integrity checking. The current collector signature is a placeholder, not a production cryptographic signature.
